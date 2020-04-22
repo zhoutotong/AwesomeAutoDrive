@@ -155,8 +155,6 @@ void DataRecCfg::removeItem(QWidget * index)
             cfgFile = YAML::Load("[]");
         }
 
-        std::cout << cfgFile << std::endl;
-
         // 查找任务列表，如果存在就删除
         if(cfgFile[nameStr].IsDefined())
         {

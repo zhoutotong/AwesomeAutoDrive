@@ -404,7 +404,12 @@ void DoubleValueMeter::update(float wall_dt, float ros_dt)
     require_update_texture_ = false;
 }
 
-void DoubleValueMeter::processMessage(const std_msgs::Float64::ConstPtr &msg)
+void DoubleValueMeter::updateData(const DoubleValueMeterParam &param)
+{
+    processMessage(param);
+}
+
+void DoubleValueMeter::processMessage(const DoubleValueMeterParam &msg)
 {
     if (!isEnabled())
     {
@@ -424,11 +429,11 @@ void DoubleValueMeter::processMessage(const std_msgs::Float64::ConstPtr &msg)
     }
 
     // store message for update method
-    // range_max = msg->max;
-    // range_min = msg->min;
-    // value_a = msg->val_a;
-    // value_b = msg->val_b;
-    // label = QString::fromStdString(msg->label);
+    range_max = msg.range_max;
+    range_min = msg.range_min;
+    value_a = msg.value_a;
+    value_b = msg.value_b;
+    label = msg.label;
     // if (!overtake_position_properties_)
     // {
     //     // texture_width_ = 200;//msg->width;

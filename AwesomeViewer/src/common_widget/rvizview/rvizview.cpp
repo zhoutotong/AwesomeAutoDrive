@@ -19,19 +19,18 @@
 #include <QStyleOptionViewItem>
 #include <QDebug>
 
+#include <QTimer>
 
 #include "utilities/cfgfilehelper.h"
 
 RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), is_show_menu_(false)
   , config_file_(QString::fromStdString(utilities::CfgFileHelper::getRvizCfgFile()))
 {
+    // 初始化界面显示
     QVBoxLayout *main_layout = new QVBoxLayout(this);
     main_layout->setMargin(0);
     main_layout->setSpacing(0);
     setLayout(main_layout);
-    // 读取配置信息
-    std::cout << "Rviz config file: " << config_file_.toStdString() << std::endl;
-    // utilities::CfgFileHelper::checkAndCreateFile(config_file_.toStdString());
 
     // 创建 manager
     render_panel_ = new rviz::RenderPanel();
@@ -43,12 +42,11 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
 
     // init tool manager
     rviz::ToolManager *tool_manager = manager_->getToolManager();
-    // tool_manager->
     tool_manager->setCurrentTool(tool_manager->getTool(0));
 
     // 添加网格
     grid_ = manager_->createDisplay("rviz/Grid", "Grid", false);
-    ROS_ASSERT(grid_ != NULL);
+    ROS_ASSERT(grid_ != nullptr);
 
     // Configure the GridDisplay the way we like it.
     grid_->subProp("Line Style")->setValue("Lines");
@@ -66,8 +64,6 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
         // 如果不存在则新建，并初始化内容
         manager_->save(config_);
         rviz::YamlConfigWriter writer;
-        // QFile file(config_file_);
-        // file.remove();
         QFile::remove(config_file_);
         writer.writeFile(config_, config_file_);
 
@@ -138,6 +134,21 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
 
     }
     __setupMenu();
+
+    // QTimer *t = new QTimer(this);
+    // connect(t, &QTimer::timeout, [this]{
+
+    //     hmi_visualization::DoubleValueMeterParam param;
+    //     param.range_max = 100.0;
+    //     param.range_min = -100.0;
+    //     param.value_a = 10;
+    //     param.value_b = 20;
+    //     param.label = "方向盘";
+    //     steeringMeter->updateData(param);
+    //     param.label = "车速";
+    //     speedMeter->updateData(param);
+    // });
+    // t->start(100);
 }
 RvizView::~RvizView()
 {

@@ -66,6 +66,23 @@
 using namespace jsk_rviz_plugins;
 namespace hmi_visualization
 {
+
+  class DoubleValueMeterParam
+  {
+  public:
+    explicit DoubleValueMeterParam(double min = -120.0, double max = 120.0, double a = 0.0, double b = 0.0, QString l = "") 
+    : range_min(min), range_max(max), value_a(a), value_b(b){}
+    ~DoubleValueMeterParam(){}
+    double range_min;
+    double range_max;
+    double value_a;
+    double value_b;
+    QString label;
+
+  // typedef ConstPtr (const DoubleValueMeterParam*);
+  };
+
+
   class DoubleValueMeter
   : public rviz::Display
   {
@@ -84,6 +101,9 @@ namespace hmi_visualization
     virtual void setTopic( const QString &topic, const QString &datatype );
 
     virtual int processMouseEvent( rviz::ViewportMouseEvent& event );
+
+    void updateData(const DoubleValueMeterParam &param);
+
   protected:
     OverlayObject::Ptr overlay_;
    
@@ -147,7 +167,7 @@ namespace hmi_visualization
     void updateFont();
     void updateLineWidth();
   private:
-    void processMessage(const std_msgs::Float64::ConstPtr& msg);
+    void processMessage(const DoubleValueMeterParam &msg);
 
     float range_max;
     float range_min;

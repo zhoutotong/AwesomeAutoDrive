@@ -5,10 +5,14 @@ EditTabWidget::EditTabWidget(QWidget *parent) : QTabWidget(parent)
   , mBar(new QTabBar(this))
   , mCurrentSelectTabIndex(-1)
   , mTabEditLine(new QLineEdit("", mBar))
+  , mAddBtn(new QPushButton("Add", this))
 {
     this->setTabBar(mBar);
     mBar->installEventFilter(this);
     installEventFilter(this);
+
+    setCornerWidget(mAddBtn);
+    connect(mAddBtn, &QPushButton::clicked, this, &EditTabWidget::tabAdded);
 
     mTabEditLine->setVisible(false);
     mBar->installEventFilter(this);

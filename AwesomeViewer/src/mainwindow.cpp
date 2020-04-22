@@ -22,11 +22,11 @@ MainWindow::MainWindow(QWidget *parent)
     tabWidget->addTab(new mainwidget::MainWidget(this), "Main");
     tabWidget->addTab(new QTabWidget(this), "Detail");
     // tabWidget->addTab(new RosToolsWidget(this), "RosTools");
-    tabWidget->addTab(new DataSetWidget(this), "DataSet");
+    // tabWidget->addTab(new DataSetWidget(this), "DataSet");
     tabWidget->addTab(new ConfigureWidget(this), "Configure");
     // tabWidget->addTab(new PackagesCtlWidget(this), "Packages");
 
-    tabWidget->setCurrentIndex(3);
+    // tabWidget->setCurrentIndex(3);
 
     // statusBar()->showMessage("null");
 

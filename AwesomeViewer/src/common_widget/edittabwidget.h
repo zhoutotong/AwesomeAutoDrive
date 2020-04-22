@@ -8,6 +8,8 @@
 #include <QLineEdit>
 #include <QKeyEvent>
 
+#include <QPushButton>
+
 class EditTabWidget : public QTabWidget
 {
     Q_OBJECT
@@ -18,6 +20,7 @@ private:
     QTabBar *mBar;
     int mCurrentSelectTabIndex;
     QLineEdit *mTabEditLine;
+    QPushButton *mAddBtn;
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
@@ -27,6 +30,7 @@ public slots:
 
 signals:
     void tabTextChanged(int index, QString tabText);
+    void tabAdded();
 };
 
 #endif // EDITTABWIDGET_H
