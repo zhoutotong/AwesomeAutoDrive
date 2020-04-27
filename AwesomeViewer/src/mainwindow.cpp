@@ -4,6 +4,8 @@
 // #include "ros_tools_widget/rostoolswidget.h"
 #include "data_set_widget/datasetwidget.h"
 #include "main_widget/mainwidget.h"
+#include "statewidget.h"
+#include "utilities/execctl.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -20,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     tabWidget->setTabPosition(QTabWidget::West);
 
     tabWidget->addTab(new mainwidget::MainWidget(this), "Main");
-    tabWidget->addTab(new QTabWidget(this), "Detail");
+    tabWidget->addTab(new StateWidget(this), "Detail");
     // tabWidget->addTab(new RosToolsWidget(this), "RosTools");
     // tabWidget->addTab(new DataSetWidget(this), "DataSet");
     tabWidget->addTab(new ConfigureWidget(this), "Configure");
@@ -34,5 +36,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    execctl::ExecCtl::get_instance().stopAll();
 }
 

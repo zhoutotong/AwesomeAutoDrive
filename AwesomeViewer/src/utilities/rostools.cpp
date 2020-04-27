@@ -40,8 +40,6 @@ QString findTag(const QString &bodyIn, const YAML::Node tagMap)
     int bodyLength = tailStart - headStart - headLength;
     QString body = t.mid(bodyStart, bodyLength);
 
-    std::cout << "find out tag: " << body.toStdString() << std::endl;
-
     if(tagMap[body.toStdString()].IsDefined())
     {
         t.replace("<%" + body + "%>", QString::fromStdString(tagMap[body.toStdString()].as<std::string>()));
@@ -105,37 +103,18 @@ bool findTemplate(QString &bodyin, YAML::Node &templateMap)
 }
 
 
-void RosTools::generateTopicWatch()
+void RosTools::generateTopicWatch(const std::string &node, const std::string &output)
 {
-    // 载入配置文件
-    YAML::Node root = YAML::Load("{}");
-    root["topic01"] = YAML::Load("{}");
-    root["topic01"]["type"] = "t01type";
-    root["topic01"]["hz_min"] = "1";
-    root["topic01"]["hz_max"] = "10";
-    root["topic01"]["params"]["t01param01"]["type"] = "Float32";
-    root["topic01"]["params"]["t01param01"]["min"] = "1";
-    root["topic01"]["params"]["t01param01"]["max"] = "12";
-    root["topic01"]["params"]["t01param02"]["type"] = "Float32";
-    root["topic01"]["params"]["t01param02"]["min"] = "1";
-    root["topic01"]["params"]["t01param02"]["max"] = "12";
-    root["topic01"]["params"]["t01param03"]["type"] = "Float32";
-    root["topic01"]["params"]["t01param03"]["min"] = "1";
-    root["topic01"]["params"]["t01param03"]["max"] = "12";
-
-    root["topic02"] = YAML::Load("{}");
-    root["topic02"]["type"] = "t01type";
-    root["topic02"]["hz_min"] = "1";
-    root["topic02"]["hz_max"] = "10";
-    root["topic02"]["params"]["t01param01"]["type"] = "Float32";
-    root["topic02"]["params"]["t01param01"]["min"] = "1";
-    root["topic02"]["params"]["t01param01"]["max"] = "12";
-    root["topic02"]["params"]["t01param02"]["type"] = "Float32";
-    root["topic02"]["params"]["t01param02"]["min"] = "1";
-    root["topic02"]["params"]["t01param02"]["max"] = "12";
-    root["topic02"]["params"]["t01param03"]["type"] = "Float32";
-    root["topic02"]["params"]["t01param03"]["min"] = "1";
-    root["topic02"]["params"]["t01param03"]["max"] = "12";
+    std::cout << node << std::endl;
+    // 检查配置文件是不是存在，如果不存在就返回
+    if(!CfgFileHelper::checkFileExist(node))
+    {
+        std::cout << "配置文件不存在" << std::endl;
+        return;
+    }
+    // 从配置文件中加载数据
+    YAML::Node root = YAML::LoadFile(node);
+    std::cout << root << std::endl;
 
     // 载入模板
     std::string templateFile = CfgFileHelper::getTopicWatchTemplateFlie();
@@ -159,7 +138,7 @@ void RosTools::generateTopicWatch()
     QString callbackCheckParamTemp = QString::fromStdString(templates["callback_check_param"].as<std::string>());
     QString hzStateCheckTemp = QString::fromStdString(templates["hz_state_check"].as<std::string>());
     QString loadparamInfoTemp = QString::fromStdString(templates["load_param_info"].as<std::string>());
-
+    QString importPkgTemp = QString::fromStdString(templates["import_pkg_list"].as<std::string>());
 
     QString initDictStr;
     QString subTopicStr;
@@ -167,18 +146,32 @@ void RosTools::generateTopicWatch()
     QString callbackStr;
     QString hzStateCheckStr;
     QString loadparamInfoStr;
+    QString importPkgStr;
     for(auto itor = root.begin(); itor != root.end(); itor++)
     {
         YAML::Node n = YAML::Load("{}");
         n["topic"] = itor->first;
-        n["topic_type"] = itor->second["type"];
+        // 查找type
+        QString topT = QString::fromStdString(itor->second["type"].as<std::string>());
+        QStringList topTL = topT.split("/");
+        topT = topTL.at(topTL.size() - 1);
+        QString pkgName = topTL.at(0);
+        std::cout << topT.toStdString() << std::endl;
+        // 生成 topic label
+        QString topL = QString::fromStdString(itor->second["type"].as<std::string>());
+        topL.replace('/', '_');
+
+        n["topic_type"] = topT.toStdString();
+        n["topic_label"] = topL.toStdString();
         n["hz_min"] = itor->second["hz_min"];
         n["hz_max"] = itor->second["hz_max"];
+        n["pkg_name"] = pkgName.toStdString();
         initDictStr += replaceTag(initDictTemp, n);
         subTopicStr += replaceTag(subTopicTemp, n);
         callbackStr += replaceTag(callbackTemp, n);
         hzCheckStr += replaceTag(hzCheckTemp, n);
         hzStateCheckStr += replaceTag(hzStateCheckTemp, n);
+        importPkgStr += replaceTag(importPkgTemp, n);
         // 遍历处理 param
         for(auto paramItor = itor->second["params"].begin(); paramItor != itor->second["params"].end(); paramItor++)
         {
@@ -198,11 +191,15 @@ void RosTools::generateTopicWatch()
     items["call_back"] = callbackStr.toStdString();
     items["hz_state_check"] = hzStateCheckStr.toStdString();
     items["load_param_info"] = loadparamInfoStr.toStdString();
+    items["import_pkg_list"] = importPkgStr.toStdString();
 
     // 生成监测脚本
     QString script = replaceTag(t, items);
 
-    std::cout << script.toStdString() << std::endl; 
+    FILE *fd = fopen(output.c_str(), "w");
+    if(!fd) return;
+    fwrite(script.toStdString().c_str(), 1, script.size(), fd);
+    fclose(fd);
 
 }
 

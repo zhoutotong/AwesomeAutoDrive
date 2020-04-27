@@ -10,6 +10,14 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+
+set(current_dir ${CMAKE_CURRENT_SOURCE_DIR})
+
+message(Current_DIR, ${current_dir})
+# 添加查找目录
+set(CMAKE_INCLUDE_PATH ${current_dir}/ros_tools/devel/include)
+set(CMAKE_LIBRARY_PATH ${current_dir}/ros_tools/devel/lib)
+
 # 指定编译选项
 set(CMAKE_C_FLAGS_DEBUG "-g -Wall")
 

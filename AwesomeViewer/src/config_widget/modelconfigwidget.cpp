@@ -419,8 +419,8 @@ void ModelConfigWidget::removeModel(int index)
         fclose(fd);
 
         // 删除对应的配置文件
-        std::string cfgFile = utilities::CfgFileHelper::getModelCfgDir() + table->getLabel().toStdString() + ".yaml";
-        remove(cfgFile.toStdString().c_str());
+        std::string nodeCfg = utilities::CfgFileHelper::getModelCfgDir() + table->getLabel().toStdString() + ".yaml";
+        remove(nodeCfg.c_str());
 
         // 释放资源，并从界面中移除
         delete table;

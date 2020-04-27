@@ -1,11 +1,19 @@
 #!/usr/bin/env python
 
+import sys
+sys.path.append('/home/tong/Documents/AwesomeAutoDrive/AwesomeViewer/ros_tools/devel/lib/python2.7/dist-packages')
+
 import rospy
 import time
 from std_msgs.msg import Header
 from rostopic import ROSTopicHz
-from hmi2_0.msg import node_state
-from hmi2_0.msg import all_state
+from hmi_msgs.msg import node_state
+from hmi_msgs.msg import all_state
+
+<%import_pkg_list%>
+<import_pkg_list>
+from <%pkg_name%>.msg import <%topic_type%>
+</import_pkg_list>
 
 hz_checker = ROSTopicHz(10, use_wtime=True)
 
@@ -13,7 +21,7 @@ msg_dict = {}
 topic_keys = ['hz', 'hz_state', 'params']
 param_keys = ['value', 'state']
 
-pub = rospy.Publisher(<%node_name%>, all_state, queue_size = 10)
+pub = rospy.Publisher('<%node_name%>', all_state, queue_size = 10)
 
 def func_checking_value(param, min, max):
 	return param <= max and param >= min
@@ -52,7 +60,7 @@ def timer_callback(event):
 
 <%call_back%>
 <call_back>
-def <%topic%>_callback(msg):
+def <%topic_label%>_callback(msg):
 	global hz_checker
 	hz_checker.callback_hz(msg, '')</call_back>
 
@@ -63,29 +71,27 @@ def <%topic%>_callback(msg):
 
 
 def main():
-	rospy.init_node(<%node_name%>, anonymous=False)
+	rospy.init_node('<%node_name%>', anonymous=False)
 	curr = rospy.get_rostime().to_sec()
 
-	# 初始化字典
 <%init_dict_topic%>
 <init_dict_topic>
 	msg_dict['<%topic%>'] = dict.fromkeys(topic_keys)
 	msg_dict['<%topic%>']['hz'] = 0
 	msg_dict['<%topic%>']['hz_state'] = 0
+	msg_dict['<%topic%>']['params'] = dict()
 </init_dict_topic>
 
 <init_dict_param>
 	msg_dict['<%topic%>']['params']['<%param%>'] = dict.fromkeys(param_keys)
 </init_dict_param>
-	# 监测话题频率
 <%hz_check%>
 <hz_check>
 	hz_checker.set_msg_t0(curr, topic = '<%topic%>')</hz_check>
-	
-	# 订阅监测的话题
+
 <%sub_topic%>
 <sub_topic>
-	rospy.Subscriber(<%topic%>, <%topic_type%>, <%topic%>_callback)</sub_topic>
+	rospy.Subscriber('<%topic%>', <%topic_type%>, <%topic_label%>_callback)</sub_topic>
 
 	rospy.Timer(rospy.Duration(1), timer_callback)
 

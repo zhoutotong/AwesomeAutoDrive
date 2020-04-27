@@ -24,7 +24,7 @@ class RosTools
 {
 public:
     static std::map<std::string, std::string> getTopicList();
-    static void generateTopicWatch();
+    static void generateTopicWatch(const std::string &node, const std::string &output);
 };    
 }
 

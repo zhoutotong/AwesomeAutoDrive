@@ -1,8 +1,7 @@
 #Author:      zhoutotong
 cmake_minimum_required(VERSION 3.10)
 
-set(MODULE_NAME utilities)
-
+set(MODULE_NAME detail_widget)
 
 # 开启 C++14支持
 set(CMAKE_CXX_STANDARD 14)
@@ -15,22 +14,26 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(roscpp REQUIRED)
-
+find_package(rviz REQUIRED)
 find_package(yaml-cpp REQUIRED)
-
+find_package(jsk_rviz_plugins REQUIRED)
+find_package(std_msgs REQUIRED)
 
 set(SOURCE_FILES
-cfgfilehelper.cpp
-rostools.cpp
-execctl.cpp
+infowidget.cpp
+keystatisticsstatusinfowidget.cpp
+networkinfowidget.cpp
+statewidget.cpp
+topicwatch.cpp
 )
 
 include_directories(                          #相关头文件的目录
 ./
 ${YAML_CPP_INCLUDE_DIR}
-${roscpp_INCLUDE_DIRS}
-
+${rviz_INCLUDE_DIRS}
+${jsk_rviz_plugins_INCLUDE_DIRS}
+${std_msgs_INCLUDE_DIRS}
+${CMAKE_INCLUDE_PATH}
 )
 
 link_directories(                             #相关库文件的目录
@@ -40,8 +43,14 @@ link_directories(                             #相关库文件的目录
 
 add_library(${MODULE_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${MODULE_NAME} Qt5::Core Qt5::Gui Qt5::Widgets
-${roscpp_LIBRARIES}
+target_link_libraries(${MODULE_NAME} 
+${rviz_LIBRARIES}
 ${YAML_CPP_LIBRARIES}
+${jsk_rviz_plugins_LIBRARIES}
+${std_msgs_LIBRARIES}
+Qt5::Core 
+Qt5::Gui 
+Qt5::Widgets 
+utilities
 )
 
