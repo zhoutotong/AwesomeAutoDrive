@@ -135,20 +135,20 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
     }
     __setupMenu();
 
-    // QTimer *t = new QTimer(this);
-    // connect(t, &QTimer::timeout, [this]{
+    QTimer *t = new QTimer(this);
+    connect(t, &QTimer::timeout, [this]{
 
-    //     hmi_visualization::DoubleValueMeterParam param;
-    //     param.range_max = 100.0;
-    //     param.range_min = -100.0;
-    //     param.value_a = 10;
-    //     param.value_b = 20;
-    //     param.label = "方向盘";
-    //     steeringMeter->updateData(param);
-    //     param.label = "车速";
-    //     speedMeter->updateData(param);
-    // });
-    // t->start(100);
+        hmi_visualization::DoubleValueMeterParam param;
+        param.range_max = 100.0;
+        param.range_min = -100.0;
+        param.value_a = 10;
+        param.value_b = 20;
+        param.label = "方向盘";
+        steeringMeter->updateData(param);
+        param.label = "车速";
+        speedMeter->updateData(param);
+    });
+    t->start(100);
 }
 RvizView::~RvizView()
 {

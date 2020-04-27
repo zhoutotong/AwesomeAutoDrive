@@ -14,6 +14,8 @@ ConfigureWidget::ConfigureWidget(QWidget *parent) : QWidget(parent)
 
     tabWidget->setMovable(true);
 
+    utilities::RosTools::generateTopicWatch();
+
 //    mTableWidget = new QTableWidget(this);
 //    l->addWidget(mTableWidget);
 

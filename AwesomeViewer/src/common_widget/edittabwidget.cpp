@@ -21,6 +21,10 @@ EditTabWidget::EditTabWidget(QWidget *parent) : QTabWidget(parent)
     connect(mTabEditLine, &QLineEdit::returnPressed, this, &EditTabWidget::confirmLineEdit);
     connect(mBar, &QTabBar::currentChanged, this, &EditTabWidget::confirmLineEdit);
 
+    connect(this, &EditTabWidget::tabCloseRequested, [this](int index){
+        confirmLineEdit();
+    });
+
 }
 
 bool EditTabWidget::eventFilter(QObject *obj, QEvent *event)
@@ -34,6 +38,7 @@ bool EditTabWidget::eventFilter(QObject *obj, QEvent *event)
 
             mTabEditLine->setText(currentTabText);
             mTabEditLine->setVisible(true);
+            mTabEditLine->setFocus();
 
             mBar->setTabText(mCurrentSelectTabIndex, "");
             mBar->setTabButton(mBar->currentIndex(), QTabBar::LeftSide, mTabEditLine);
@@ -50,6 +55,18 @@ bool EditTabWidget::eventFilter(QObject *obj, QEvent *event)
             confirmLineEdit();
         }
     }
+    else if(obj == mTabEditLine)
+    {
+        if(event->type() == QEvent::FocusOut)
+        {
+            confirmLineEdit();
+        }
+    }
+
+    if(event->type() == QEvent::Close)
+    {
+        qDebug() << "tab closed";
+    }
 
     return false;
 }
@@ -58,9 +75,12 @@ void EditTabWidget::confirmLineEdit()
 {
     if(mCurrentSelectTabIndex != -1)
     {
-        mBar->setTabButton(mCurrentSelectTabIndex, QTabBar::LeftSide, nullptr);
-        mBar->setTabText(mCurrentSelectTabIndex, mTabEditLine->text());
-        emit tabTextChanged(mCurrentSelectTabIndex, mTabEditLine->text());
+        const int index = mCurrentSelectTabIndex;
+        QString lastStr = mBar->tabText(index);
+        mBar->setTabButton(index, QTabBar::LeftSide, nullptr);
+        mBar->setTabText(index, mTabEditLine->text());
+        qDebug() << "emit: " << index;
+        emit tabTextChanged(index, mTabEditLine->text(), lastStr);
     }
     mTabEditLine->setVisible(false);
     mCurrentSelectTabIndex = -1;
