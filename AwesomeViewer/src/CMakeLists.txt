@@ -19,7 +19,9 @@ include_directories(                          #相关头文件的目录
 ./common_widget
 ./data_set_widget
 ./main_widget
+./detail_widget
 ${roscpp_INCLUDE_DIRS}
+${CMAKE_INCLUDE_PATH}
 )
 
 link_directories(                             #相关库文件的目录
@@ -32,6 +34,7 @@ add_subdirectory(main_widget)
 add_subdirectory(config_widget)
 add_subdirectory(data_set_widget)
 add_subdirectory(utilities)
+add_subdirectory(detail_widget)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
@@ -41,6 +44,7 @@ main_widget
 data_set_widget 
 common_widget
 config_widget
+detail_widget
 Qt5::Core 
 Qt5::Gui 
 Qt5::Widgets)

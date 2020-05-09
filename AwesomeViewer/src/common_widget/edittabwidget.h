@@ -29,7 +29,7 @@ public slots:
     void confirmLineEdit();
 
 signals:
-    void tabTextChanged(int index, QString tabText);
+    void tabTextChanged(int index, QString newTabText, QString lastTabText);
     void tabAdded();
 };
 

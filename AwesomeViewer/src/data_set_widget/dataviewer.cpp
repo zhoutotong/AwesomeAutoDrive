@@ -3,6 +3,9 @@
 
 DataViewer::DataViewer(QWidget *parent) : QWidget(parent)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(new PCLViewer(this));
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    PCLViewer *pclViewer = new PCLViewer(this);
+
+
+    layout->addWidget(pclViewer);
 }

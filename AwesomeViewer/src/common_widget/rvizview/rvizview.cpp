@@ -9,6 +9,7 @@
 #include "rviz/display_factory.h"
 #include "rviz/add_display_dialog.h"
 #include "rviz/displays_panel.h"
+#include "rviz/views_panel.h"
 #include "rviz/selection_panel.h"
 #include "rviz/selection/selection_manager.h"
 #include "rviz/properties/property_tree_model.h"
@@ -22,6 +23,7 @@
 #include <QTimer>
 
 #include "utilities/cfgfilehelper.h"
+#include "utilities/rostools.h"
 
 RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), is_show_menu_(false)
   , config_file_(QString::fromStdString(utilities::CfgFileHelper::getRvizCfgFile()))
@@ -44,18 +46,6 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
     rviz::ToolManager *tool_manager = manager_->getToolManager();
     tool_manager->setCurrentTool(tool_manager->getTool(0));
 
-    // 添加网格
-    grid_ = manager_->createDisplay("rviz/Grid", "Grid", false);
-    ROS_ASSERT(grid_ != nullptr);
-
-    // Configure the GridDisplay the way we like it.
-    grid_->subProp("Line Style")->setValue("Lines");
-    grid_->subProp("Color")->setValue(QColor(Qt::gray));
-
-    grid_->subProp("Line Style")->subProp("Line Width")->setValue(0.05f);
-    grid_->subProp("Cell Size")->setValue(1.0f);
-    grid_->subProp("Plane")->setValue("xy");
-
     main_layout->addWidget(render_panel_);
 
     // 检查配置文件是否存在
@@ -67,6 +57,8 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
         QFile::remove(config_file_);
         writer.writeFile(config_, config_file_);
 
+        std::cout << "cfg file is not exit" << std::endl;
+
         if (writer.error())
         {
             printf("%s", qPrintable(writer.errorMessage()));
@@ -76,6 +68,7 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
     // 加载配置文件
     if (QFile::exists(config_file_))
     {
+        std::cout << "cfg file is exit: " << config_file_.toStdString() << std::endl;
         rviz::YamlConfigReader reader;
         reader.readFile(config_, config_file_);
         if (reader.error())
@@ -135,20 +128,24 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
     }
     __setupMenu();
 
-    // QTimer *t = new QTimer(this);
-    // connect(t, &QTimer::timeout, [this]{
+    QTimer *t = new QTimer(this);
+    connect(t, &QTimer::timeout, [this]{
 
-    //     hmi_visualization::DoubleValueMeterParam param;
-    //     param.range_max = 100.0;
-    //     param.range_min = -100.0;
-    //     param.value_a = 10;
-    //     param.value_b = 20;
-    //     param.label = "方向盘";
-    //     steeringMeter->updateData(param);
-    //     param.label = "车速";
-    //     speedMeter->updateData(param);
-    // });
-    // t->start(100);
+        hmi_visualization::DoubleValueMeterParam paramSteering, paramSpeed;
+        paramSteering.range_max = 720.0;
+        paramSteering.range_min = -720.0;
+        paramSteering.value_a = utilities::RosTools::get_instance().getSteering();
+        paramSteering.value_b = utilities::RosTools::get_instance().getCtlSteering();
+        paramSteering.label = "方向盘";
+        steeringMeter->updateData(paramSteering);
+        paramSpeed.label = "车速";
+        paramSpeed.range_max = 20.0;
+        paramSpeed.range_min = 0.0;
+        paramSpeed.value_a = utilities::RosTools::get_instance().getSpeed();
+        paramSpeed.value_b = utilities::RosTools::get_instance().getCtlSpeed();
+        speedMeter->updateData(paramSpeed);
+    });
+    t->start(20);
 }
 RvizView::~RvizView()
 {
@@ -234,10 +231,7 @@ void RvizView::__setupMenu()
     menu_ = new QMenu(this);
     QAction *act = nullptr;
     __addAction(menu_, "Displays", std::bind(&RvizView::__showDisplayPanel, this));
-    act = __addAction(menu_, "ShowGrid", [this](bool) { grid_->setEnabled(!grid_->isEnabled()); }, true);
-    act->setChecked(grid_->isEnabled());
-    connect(grid_, &rviz::Display::changed, [act, this] { act->setChecked(grid_->isEnabled()); });
-
+    __addAction(menu_, "Views", std::bind(&RvizView::__showViewsPanel, this));
     __addAction(menu_, "AddTools", std::bind(&RvizView::__addTools, this), false);
 
     tools_act_group_ = new QActionGroup(menu_);
@@ -301,6 +295,15 @@ void RvizView::logoutModelData(rviz::Property *p)
 void RvizView::__showDisplayPanel()
 {
     rviz::DisplaysPanel *panel = new rviz::DisplaysPanel();
+    panel->initialize(manager_);
+    panel->load(config_);
+    panel->setAttribute(Qt::WA_DeleteOnClose, true);
+    panel->show();
+}
+
+void RvizView::__showViewsPanel()
+{
+    rviz::ViewsPanel *panel = new rviz::ViewsPanel();
     panel->initialize(manager_);
     panel->load(config_);
     panel->setAttribute(Qt::WA_DeleteOnClose, true);

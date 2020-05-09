@@ -13,6 +13,9 @@
 #include <QDoubleSpinBox>
 #include <QComboBox>
 #include <QCompleter>
+#include <QMessageBox>
+#include <QInputDialog>
+
 #include <functional>
 
 #include "common_widget/edittabwidget.h"
@@ -29,7 +32,7 @@ public:
     static const QStringList itemNameList;
     inline const QList<QWidget*> getItemList() { return mItemList; }
 
-private:
+public:
 
     QLineEdit *mName;
     QComboBox *mTopic;
@@ -55,12 +58,14 @@ class ModelConfigTable : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ModelConfigTable(QWidget *parent = nullptr);
+    explicit ModelConfigTable(QWidget *parent = nullptr, QString modeLabel = "");
     ~ModelConfigTable();
     inline bool isClosable() { return mIsClosable; }
     inline void setClosable(bool closable) { mIsClosable = closable; }
 
     void addItem(ModelConfigItem *item);
+    inline void setLabel(const QString &label){ mModelLabel = label; }
+    inline QString getLabel() { return mModelLabel; }
 
 protected:
     QTableWidget *mTableWidget;
@@ -69,25 +74,13 @@ private:
     bool mIsClosable;
     QList<ModelConfigItem*> mItemList;
 
+    QString mModelLabel;
+
+
 public slots:
     void addItem();
+    void updateCfg();
     void removeItem(QWidget *item);
-};
-
-// 这个用来管理基本的信息类
-class InfoModelConfigTable : public ModelConfigTable
-{
-public:
-    ~InfoModelConfigTable(){}
-    InfoModelConfigTable() = delete;
-    InfoModelConfigTable& operator = (const InfoModelConfigTable&)=delete;
-    static InfoModelConfigTable& getInstance(){
-        static InfoModelConfigTable instance(nullptr);
-        return instance;
-    }
-
-private:
-    InfoModelConfigTable(QWidget *parent = nullptr);
 };
 
 // 这个类用来管理参数监测模块
@@ -100,10 +93,12 @@ public:
 
 private:
     EditTabWidget *mTableWidget;
+    YAML::Node mModelCfgNode;
 
 public slots:
     void addModel();
     void removeModel(int index);
+    void renameModel(int index, QString newTabText, QString lastTabText);
 
 signals:
 

@@ -25,4 +25,13 @@ bool CfgFileHelper::checkFileExist(std::string file)
     return true;
 }
 
+bool CfgFileHelper::writeYAML2File(const YAML::Node &n, const std::string &file)
+{
+    std::stringstream ss;
+    ss << n;
+    FILE *fd = fopen(file.c_str(), "w");
+    fwrite(ss.str().c_str(), 1, ss.str().size(), fd);
+    fclose(fd);
+}
+
 } // namespace utilities
