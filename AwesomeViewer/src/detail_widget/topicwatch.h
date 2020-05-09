@@ -11,6 +11,8 @@
 
 #include <QMap>
 
+#include <yaml-cpp/yaml.h>
+
 #include "infowidget.h"
 #include "utilities/cfgfilehelper.h"
 #include "utilities/rostools.h"
@@ -27,12 +29,24 @@ class BaseInfoWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit BaseInfoWidget(QWidget *parent = nullptr) : QWidget(parent){}
+    explicit BaseInfoWidget(const QString &modelLabel = "", QWidget *parent = nullptr) : QWidget(parent){
+        setObjectName(modelLabel);
+        // 加载监测参数列表
+        if(!modelLabel.isEmpty())
+        {
+            std::string cfgFile = utilities::CfgFileHelper::getModelCfgDir() + modelLabel.toStdString() + ".yaml";
+            mNodeList = YAML::LoadFile(cfgFile);
+        }
+
+    }
     ~BaseInfoWidget(){}
 
 public:
     virtual void updateData(const hmi_msgs::all_state &datas) = 0;
     virtual void updateData(const NodeDataMapDef &dataMap) = 0;
+
+protected:
+    YAML::Node mNodeList;
 }; // end of BaseInfoWidget
 
 // 详细消息视图
@@ -40,7 +54,7 @@ class BriefWidget : public BaseInfoWidget
 {
     Q_OBJECT
 public:
-    explicit BriefWidget(QWidget *parent = nullptr);
+    explicit BriefWidget(const QString &modelLabel = "", QWidget *parent = nullptr);
     ~BriefWidget();
 
 public:
@@ -57,7 +71,7 @@ class DetailWidget : public BaseInfoWidget
 {
     Q_OBJECT
 public:
-    explicit DetailWidget(QWidget *parent = nullptr);
+    explicit DetailWidget(const QString &modelLabel = "", QWidget *parent = nullptr);
     ~DetailWidget();
 
 public:

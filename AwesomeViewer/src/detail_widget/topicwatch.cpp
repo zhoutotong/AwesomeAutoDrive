@@ -17,11 +17,11 @@ QList<hmi_msgs::all_state> gAllStateList;
 QSemaphore gFreeSem(SIZE_OF_STATE_LIST);
 QSemaphore gUsedSem(0);
     
-QStringList gTableHeaders = {"话题", "频率值", "参数", "参数值"};
+QStringList gTableHeaders = {"监控名称", "话题", "频率值", "参数", "参数值"};
 
 namespace statewidgets {
 
-BriefWidget::BriefWidget(QWidget *parent) : BaseInfoWidget(parent)
+BriefWidget::BriefWidget(const QString &modelLabel, QWidget *parent) : BaseInfoWidget(modelLabel, parent)
   , mDataWidget(new QTableWidget(0, 0, this))
 {
     QPalette palette(this->palette());
@@ -39,6 +39,7 @@ BriefWidget::BriefWidget(QWidget *parent) : BaseInfoWidget(parent)
     mDataWidget->setHorizontalHeaderLabels(gTableHeaders);
     mDataWidget->setColumnCount(gTableHeaders.size());
     mDataWidget->setRowCount(2);
+
 }
 BriefWidget::~BriefWidget()
 {
@@ -57,6 +58,8 @@ void BriefWidget::updateData(const hmi_msgs::all_state &datas)
     {
         int m = 0;
         QTableWidgetItem *tbItem = nullptr;
+        tbItem = new QTableWidgetItem(QString::fromStdString(item.msg_name));
+        mDataWidget->setItem(i, m++, tbItem);
         tbItem = new QTableWidgetItem(QString::fromStdString(item.msg_name));
         mDataWidget->setItem(i, m++, tbItem);
         tbItem = new QTableWidgetItem(QString("%1").arg(item.hz));
@@ -90,15 +93,16 @@ void BriefWidget::updateData(const NodeDataMapDef &dataMap)
 
         rowCount += dataMap[itor].states.size();
         mDataWidget->setRowCount(rowCount);
-        // qDebug() << itor << dataMap[itor].states.size() << rowCount;
 
         foreach (hmi_msgs::node_state item, dataMap[itor].states)
         {
-            // qDebug() << item.hz << QString::fromStdString(item.msg_name)
-            // << QString::fromStdString(item.param_name) << item.param_value;
             int m = 0;
             QTableWidgetItem *tbItem = nullptr;
 
+            // 监控名称参数
+            QString watchParamName = QString::fromStdString(mNodeList[item.msg_name]["params"][item.param_name]["name"].as<std::string>());
+            tbItem = new QTableWidgetItem(watchParamName);
+            mDataWidget->setItem(i, m++, tbItem);
             // 更新节点名称列
             QString nodeName = QString::fromStdString(item.msg_name);
             tbItem = new QTableWidgetItem(nodeName);
@@ -129,9 +133,10 @@ void BriefWidget::updateData(const NodeDataMapDef &dataMap)
     }
 }
 
-DetailWidget::DetailWidget(QWidget *parent) : BaseInfoWidget(parent)
+DetailWidget::DetailWidget(const QString &modelLabel, QWidget *parent) : BaseInfoWidget(modelLabel, parent)
   , mDataWidget(new QTableWidget(0, 0, this))
 {
+    setObjectName(modelLabel);
     this->setStyleSheet("background:white");
 
     setLayout(new QVBoxLayout(this));
@@ -192,9 +197,6 @@ TopicWatch::TopicWatch(const QString &modName, const QString &modeLabel, QWidget
 
     connect(this, &TopicWatch::updateStatus, this, &TopicWatch::updateModelCfg);
 
-    std::string cfgFile = utilities::CfgFileHelper::getModelCfgFile();
-    YAML::Node node = YAML::LoadFile(cfgFile);
-
     std::string im = modeLabel.toStdString() + "_node";
     mTopicWatchThreadList.append(new std::thread([this, im] {
         ros::NodeHandle _n;
@@ -235,14 +237,14 @@ void TopicWatch::resetWidget()
     {
         // 简化消息界面
         w = briefWidget();
-        mCurWidget = new BriefWidget(w);
+        mCurWidget = new BriefWidget(objectName(), w);
         msg = "show brief window";
     }
     else if(detailWidget() && getStatus() == Status::SHOW_MAX)
     {
         // 详细消息界面
         w = detailWidget();
-        mCurWidget = new DetailWidget(w);
+        mCurWidget = new DetailWidget(objectName(), w);
         msg = "show detail window";
     } else return;
     QVBoxLayout *layout = new QVBoxLayout(w);
@@ -254,24 +256,12 @@ void TopicWatch::resetWidget()
 void TopicWatch::__statusWatchCb(const hmi_msgs::all_stateConstPtr &msg, const QString &nodeName)
 {
     if(!msg) return;
-    // 生产者
-    // gFreeSem.acquire(1);
-    // gAllStateList.append(*msg);
-    // gUsedSem.release(1);
-
     mNodeDataMap[nodeName] = hmi_msgs::all_state(*msg);
 }
 
 void TopicWatch::updateData()
 {
     mCurWidget->updateData(mNodeDataMap);
-    // if(!gUsedSem.tryAcquire()) return;
-    // auto itor = gAllStateList.begin();
-
-    // if(mCurWidget) mCurWidget->updateData(*itor);
-    // gAllStateList.pop_front();
-
-    // gFreeSem.release(1);
 }
 
 void TopicWatch::updateModelCfg()

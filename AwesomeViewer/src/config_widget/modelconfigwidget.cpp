@@ -54,6 +54,15 @@ QWidget *parent) : QObject(parent)
         mName->setEnabled(!readOnly);
         mName->setStyleSheet("background:white; color:black");
     }
+
+    // 设置数值范围
+    const double minVal = -1000000.0;
+    const double maxVal = 1000000.0;
+    mValueMin->setRange(minVal, maxVal);
+    mValueMax->setRange(minVal, maxVal);
+    mHzMax->setRange(minVal, maxVal);
+    mHzMin->setRange(minVal, maxVal);
+
 }
 
 ModelConfigItem::~ModelConfigItem()
@@ -78,6 +87,9 @@ ModelConfigTable::ModelConfigTable(QWidget *parent, QString modeLabel) : QWidget
   , mModelLabel(modeLabel)
 {
     mTableWidget->setColumnCount(ModelConfigItem::itemNameList.size());
+    mTableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    mTableWidget->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    mTableWidget->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
     mTableWidget->setHorizontalHeaderLabels(ModelConfigItem::itemNameList);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(mTableWidget);

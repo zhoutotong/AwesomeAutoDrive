@@ -35,7 +35,7 @@ void RosTools::initRosTools(int argc, char *argv[])
             loop.sleep();
         }
 
-        std::cout << "Ros Tools Thread Is Exit!!!" << std::endl;
+        std::cout << "Ros Tools Thread Is Exist!!!" << std::endl;
     });
 
 }

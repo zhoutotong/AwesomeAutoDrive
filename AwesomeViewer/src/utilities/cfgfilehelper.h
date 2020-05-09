@@ -12,7 +12,7 @@ public:
     CfgFileHelper(){}
     ~CfgFileHelper(){}
     inline static std::string getDataRecCfgFile() {return "./datareccfg.yaml"; };
-    inline static std::string getRvizCfgFile() { return "./rviz.yaml"; }
+    inline static std::string getRvizCfgFile() { return "/home/tong/Documents/AwesomeAutoDrive/AwesomeViewer/build/nox.rviz"; }
     inline static std::string getTopicWatchTemplateFlie() { return "/home/tong/Documents/AwesomeAutoDrive/AwesomeViewer/scripts/template.py"; }
     inline static std::string getScriptFileDir() {return "/home/tong/Documents/AwesomeAutoDrive/AwesomeViewer/scripts/"; }
     inline static std::string getModelCfgDir() { return "/home/tong/Documents/AwesomeAutoDrive/AwesomeViewer/model_watch/"; }

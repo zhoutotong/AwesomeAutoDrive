@@ -45,7 +45,6 @@ public:
 private:
     rviz::VisualizationManager *manager_;
     rviz::RenderPanel *render_panel_;
-    rviz::Display *grid_;
     rviz::Display *setup_display;
     rviz::Config config_;
 
@@ -69,6 +68,7 @@ private:
 
     // 右键菜单响应函数
     void __showDisplayPanel();
+    void __showViewsPanel();
     void __addTools();
 
 
