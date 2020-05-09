@@ -38,7 +38,9 @@ BriefWidget::BriefWidget(const QString &modelLabel, QWidget *parent) : BaseInfoW
     mDataWidget->setHorizontalHeaderLabels(gTableHeaders);
     mDataWidget->setHorizontalHeaderLabels(gTableHeaders);
     mDataWidget->setColumnCount(gTableHeaders.size());
-    mDataWidget->setRowCount(2);
+    mDataWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    mDataWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    mDataWidget->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
 
 }
 BriefWidget::~BriefWidget()
