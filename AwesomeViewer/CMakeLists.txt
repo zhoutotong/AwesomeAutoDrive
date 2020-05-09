@@ -13,9 +13,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(current_dir ${CMAKE_CURRENT_SOURCE_DIR})
 
-message(Current_DIR, ${current_dir})
 # 添加查找目录
-set(CMAKE_INCLUDE_PATH ${current_dir}/ros_tools/devel/include)
+set(CMAKE_INCLUDE_PATH 
+"${current_dir}/ros_tools/devel/include"
+"${current_dir}/ros_tools/src/nox_msgs/include"
+)
 set(CMAKE_LIBRARY_PATH ${current_dir}/ros_tools/devel/lib)
 
 # 指定编译选项

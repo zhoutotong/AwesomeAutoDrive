@@ -20,6 +20,7 @@
 #include "hmi_msgs/all_state.h"
 
 namespace statewidgets {
+typedef QMap<QString, hmi_msgs::all_state> NodeDataMapDef;
 
 // 简要消息视图
 class BaseInfoWidget : public QWidget
@@ -31,7 +32,7 @@ public:
 
 public:
     virtual void updateData(const hmi_msgs::all_state &datas) = 0;
-    virtual void updateData(const QMap<QString, hmi_msgs::all_state> &dataMap) = 0;
+    virtual void updateData(const NodeDataMapDef &dataMap) = 0;
 }; // end of BaseInfoWidget
 
 // 详细消息视图
@@ -44,7 +45,7 @@ public:
 
 public:
     void updateData(const hmi_msgs::all_state &datas);
-    void updateData(const QMap<QString, hmi_msgs::all_state> &dataMap);
+    void updateData(const NodeDataMapDef &dataMap);
 
 
 private:
@@ -61,7 +62,7 @@ public:
 
 public:
     void updateData(const hmi_msgs::all_state &datas);
-    void updateData(const QMap<QString, hmi_msgs::all_state> &dataMap);
+    void updateData(const NodeDataMapDef &dataMap);
 
 private:
     QTableWidget *mDataWidget;
@@ -87,9 +88,7 @@ private:
     const QString mModName;
 
     BaseInfoWidget *mCurWidget;
-
-
-    QMap<QString, hmi_msgs::all_state> mNodeDataMap;
+    NodeDataMapDef mNodeDataMap;
 
 public slots:
     void updateData();

@@ -2,7 +2,7 @@
 #include <QDebug>
 #include "ros/package.h"
 
-InfoWidget::InfoWidget(QString title, QWidget *parent) : QWidget(parent), mCurrentStatus(SHOW_NORMAL), mRootPath(QString::fromStdString(ros::package::getPath("hmi2_0")))
+InfoWidget::InfoWidget(QString title, QWidget *parent) : QWidget(parent), mCurrentStatus(SHOW_NORMAL), mRootPath("")
   , mBriefWidget(nullptr)
   , mDetailWidget(nullptr)
 {
@@ -95,7 +95,6 @@ void InfoWidget::_showBrief()
 
     mBriefWidget = new QWidget();
     layout()->addWidget(mBriefWidget);
-    qDebug() << "show brief...";
 }
 void InfoWidget::_showDetail()
 {
@@ -115,7 +114,6 @@ void InfoWidget::_showDetail()
 
     mDetailWidget = new QWidget();
     layout()->addWidget(mDetailWidget);
-    qDebug() << "show detail...";
 }
 
 void InfoWidget::resetWidget()

@@ -62,11 +62,11 @@ def timer_callback(event):
 <call_back>
 def <%topic_label%>_callback(msg):
 	global hz_checker
-	hz_checker.callback_hz(msg, '')</call_back>
+	hz_checker.callback_hz(msg, '<%topic%>')</call_back>
 
 <callback_check_param>
-	msg_dict['<%topic%>']['params']['<%param%>']['param_value'] = msg.<%param%>
-	msg_dict['<%topic%>']['params']['<%param%>']['param_state'] = func_checking_value(msg.<%param%>, 
+	msg_dict['<%topic%>']['params']['<%param%>']['value'] = msg.<%param%>
+	msg_dict['<%topic%>']['params']['<%param%>']['state'] = func_checking_value(msg.<%param%>, 
 						<%param_min%>, <%param_max%>)</callback_check_param>
 
 

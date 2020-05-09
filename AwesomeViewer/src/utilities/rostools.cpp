@@ -1,8 +1,85 @@
 #include "rostools.h"
 #include <QDebug>
 
+#include <mutex>
+
+double gSpeed;
+double gSteering;
+double gCtlSpeed;
+double gCtlSteering;
+
 namespace utilities
 {
+
+RosTools::RosTools() : __n(nullptr), __workThread(nullptr), __isWorking(false)
+{
+
+}
+
+void RosTools::initRosTools(int argc, char *argv[])
+{
+    std::cout << std::this_thread::get_id() << std::endl;
+
+    ros::init(argc, argv, "Awesome");
+    // 启动内部话题订阅
+    __workThread = new std::thread([this, &argc, &argv]{
+        __isWorking = true;
+        ros::NodeHandle n;
+        ros::Subscriber subChassis = n.subscribe<nox_msgs::Chassis>("/chassis", 10, std::bind(&RosTools::chassisCb, this, std::placeholders::_1));
+        ros::Subscriber subDrivingCommand = n.subscribe<nox_msgs::DrivingCommand>("/driving_command", 10, std::bind(&RosTools::drivingCommandCb, this, std::placeholders::_1));
+        ros::Rate loop(50.0);
+
+        while(__isWorking)
+        {
+            ros::spinOnce();
+            loop.sleep();
+        }
+
+        std::cout << "Ros Tools Thread Is Exit!!!" << std::endl;
+    });
+
+}
+
+double RosTools::getSpeed()
+{
+    return gSpeed;
+}
+double RosTools::getSteering()
+{
+    return gSteering;
+}
+
+double RosTools::getCtlSpeed()
+{
+    return gCtlSpeed;
+}
+double RosTools::getCtlSteering()
+{
+    return gCtlSteering;
+}
+
+void RosTools::subscribeTopics()
+{
+    // 订阅底盘信息话题
+
+    // 订阅控制信息
+
+}
+
+void RosTools::chassisCb(const nox_msgs::Chassis::ConstPtr &msg)
+{
+    // gChassis = nox_msgs::Chassis(*msg);
+    gSpeed = msg->speed;
+    gSteering = msg->steering;
+}
+
+void RosTools::drivingCommandCb(const nox_msgs::DrivingCommand::ConstPtr &msg)
+{
+    // gDrivingCommand = nox_msgs::DrivingCommand(*msg);
+    gCtlSteering = msg->target_steering;
+    gCtlSpeed = msg->target_speed;
+}
+
 std::map<std::string, std::string> RosTools::getTopicList()
 {
     ros::master::V_TopicInfo topics;
@@ -103,7 +180,7 @@ bool findTemplate(QString &bodyin, YAML::Node &templateMap)
 }
 
 
-void RosTools::generateTopicWatch(const std::string &node, const std::string &output)
+void RosTools::generateTopicWatch(const std::string &node_name, const std::string &node, const std::string &output)
 {
     std::cout << node << std::endl;
     // 检查配置文件是不是存在，如果不存在就返回
@@ -184,7 +261,7 @@ void RosTools::generateTopicWatch(const std::string &node, const std::string &ou
         }
     }
 
-    items["node_name"] = "test_node";
+    items["node_name"] = node_name + "_node";
     items["init_dict_topic"] = initDictStr.toStdString();
     items["sub_topic"] = subTopicStr.toStdString();
     items["hz_check"] = hzCheckStr.toStdString();
@@ -200,8 +277,6 @@ void RosTools::generateTopicWatch(const std::string &node, const std::string &ou
     if(!fd) return;
     fwrite(script.toStdString().c_str(), 1, script.size(), fd);
     fclose(fd);
-
 }
-
 
 } // namespace utilities

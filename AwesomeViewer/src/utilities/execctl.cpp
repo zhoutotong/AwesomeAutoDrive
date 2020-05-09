@@ -30,7 +30,7 @@ void NodeWatch::start()
         qDebug() << ">>> running: " << QString::fromStdString(pyfile);
         if(QFile::exists(QString::fromStdString(pyfile)))
             pid = system(std::string("python " + pyfile).c_str());
-        std::cout << _LOCALE_CLASSES_TCC << __LINE__ << "-->" << execName << " NodeWatch thread is Exited!!!" << std::endl;
+        std::cout << "-->" << execName << " NodeWatch thread is Exited!!!" << std::endl;
     });
 }
 void NodeWatch::reload()
@@ -57,7 +57,6 @@ void NodeWatch::stop()
 }
 
 ExecCtl::ExecCtl() : mRootPath(utilities::CfgFileHelper::getModelCfgDir()){
-    std::cout<<"constructor called!"<<std::endl;
 
     const QString modeListTab = "ModuleList";
     const QString NodeListTab = "NodeList";
@@ -76,7 +75,6 @@ ExecCtl::ExecCtl() : mRootPath(utilities::CfgFileHelper::getModelCfgDir()){
 }
 
 ExecCtl::~ExecCtl(){
-    std::cout<<"destructor called!"<<std::endl;
     for(auto itor = execList.begin(); itor != execList.end(); itor++)
     {
         delete itor->second;

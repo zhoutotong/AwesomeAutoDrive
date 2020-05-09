@@ -24,13 +24,14 @@ set(SOURCE_FILES
 cfgfilehelper.cpp
 rostools.cpp
 execctl.cpp
+utilities.cpp
 )
 
 include_directories(                          #相关头文件的目录
 ./
 ${YAML_CPP_INCLUDE_DIR}
 ${roscpp_INCLUDE_DIRS}
-
+${CMAKE_INCLUDE_PATH}
 )
 
 link_directories(                             #相关库文件的目录

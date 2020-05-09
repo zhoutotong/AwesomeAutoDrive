@@ -42,7 +42,7 @@ BriefWidget::BriefWidget(QWidget *parent) : BaseInfoWidget(parent)
 }
 BriefWidget::~BriefWidget()
 {
-qDebug() << __FUNCTION__ << " released " << __LINE__;
+
 }
 void BriefWidget::updateData(const hmi_msgs::all_state &datas)
 {
@@ -76,7 +76,7 @@ void BriefWidget::updateData(const hmi_msgs::all_state &datas)
     }
 }
 
-void BriefWidget::updateData(const QMap<QString, hmi_msgs::all_state> &dataMap)
+void BriefWidget::updateData(const NodeDataMapDef &dataMap)
 {
     if (!mDataWidget)
         return;
@@ -98,20 +98,25 @@ void BriefWidget::updateData(const QMap<QString, hmi_msgs::all_state> &dataMap)
             // << QString::fromStdString(item.param_name) << item.param_value;
             int m = 0;
             QTableWidgetItem *tbItem = nullptr;
-            QString nodeName = itor;
-            QStringList nodeNameList = nodeName.split("_");
-            nodeName.remove(nodeNameList.at(0) + "_");
-            nodeName.remove(QString("_") + nodeNameList.at(nodeNameList.size() - 1));
+
+            // 更新节点名称列
+            QString nodeName = QString::fromStdString(item.msg_name);
             tbItem = new QTableWidgetItem(nodeName);
             mDataWidget->setItem(i, m++, tbItem);
-            tbItem = new QTableWidgetItem(QString::fromStdString(item.msg_name));
-            mDataWidget->setItem(i, m++, tbItem);
+
+            // 更新节点频率列
             tbItem = new QTableWidgetItem(QString("%1").arg(item.hz));
             if (!item.hz_state)
             {
                 tbItem->setTextColor(Qt::red);
             }
             mDataWidget->setItem(i, m++, tbItem);
+
+            // 更新参数名称列
+            tbItem = new QTableWidgetItem(QString::fromStdString(item.param_name));
+            mDataWidget->setItem(i, m++, tbItem);
+
+            // 更新参数值列
             tbItem = new QTableWidgetItem(QString("%1").arg(item.param_value));
             if (!item.param_state)
             {
@@ -171,7 +176,7 @@ void DetailWidget::updateData(const hmi_msgs::all_state &datas)
     }
 }
 
-void DetailWidget::updateData(const QMap<QString, hmi_msgs::all_state> &dataMap)
+void DetailWidget::updateData(const NodeDataMapDef &dataMap)
 {
 
 }
@@ -185,34 +190,26 @@ TopicWatch::TopicWatch(const QString &modName, const QString &modeLabel, QWidget
     setBackgroundRole(QPalette::Light);
     setObjectName(modeLabel);
 
-    QString rootPath = QString::fromStdString(ros::package::getPath("hmi_msgs"));
-    QSettings *set = new QSettings(rootPath + "/config/ros_node/cfg.ini", QSettings::IniFormat);
-    QStringList nodeList = set->value(modName + "/NodeList").toStringList();
-    qDebug() << __FUNCTION__ << __LINE__ << modName << nodeList;
-    delete set;
-    set = nullptr;
-
     connect(this, &TopicWatch::updateStatus, this, &TopicWatch::updateModelCfg);
 
-    foreach(QString item, nodeList)
-    {
-        QString im = mModName + "_" + item + "_status";
-        mTopicWatchThreadList.append(new std::thread([this, &im] {
-            ros::NodeHandle _n;
-            std::cout << im.toStdString() << " start watch..." << std::endl;
-            ros::Subscriber sub = _n.subscribe<hmi_msgs::all_state>(im.toStdString(), 
-                                  100, std::bind(&TopicWatch::__statusWatchCb, this, std::placeholders::_1, im));
-            ros::Rate loop(10);
-            while (mIsWatching)
-            {
-                ros::spinOnce();
-                loop.sleep();
-            }
-            qDebug() << im << " topic watch exit!!!";
-            return;
-        }));
-        usleep(50);
-    }
+    std::string cfgFile = utilities::CfgFileHelper::getModelCfgFile();
+    YAML::Node node = YAML::LoadFile(cfgFile);
+
+    std::string im = modeLabel.toStdString() + "_node";
+    mTopicWatchThreadList.append(new std::thread([this, im] {
+        ros::NodeHandle _n;
+        ros::Subscriber sub = _n.subscribe<hmi_msgs::all_state>(im, 
+                                100, std::bind(&TopicWatch::__statusWatchCb, this, std::placeholders::_1, QString::fromStdString(im)));
+        ros::Rate loop(10);
+        while (mIsWatching)
+        {
+            ros::spinOnce();
+            loop.sleep();
+        }
+        std::cout << im << " topic watch exit!!!" << std::endl;
+        return;
+    }));
+
 
     mWatchTimer = new QTimer();
     connect(mWatchTimer, &QTimer::timeout, this, &TopicWatch::updateData);
@@ -258,23 +255,23 @@ void TopicWatch::__statusWatchCb(const hmi_msgs::all_stateConstPtr &msg, const Q
 {
     if(!msg) return;
     // 生产者
-    gFreeSem.acquire(1);
-    gAllStateList.append(*msg);
-    gUsedSem.release(1);
+    // gFreeSem.acquire(1);
+    // gAllStateList.append(*msg);
+    // gUsedSem.release(1);
 
-    mNodeDataMap[nodeName] = *msg;
+    mNodeDataMap[nodeName] = hmi_msgs::all_state(*msg);
 }
 
 void TopicWatch::updateData()
 {
     mCurWidget->updateData(mNodeDataMap);
-    if(!gUsedSem.tryAcquire()) return;
-    auto itor = gAllStateList.begin();
+    // if(!gUsedSem.tryAcquire()) return;
+    // auto itor = gAllStateList.begin();
 
-    if(mCurWidget) mCurWidget->updateData(*itor);
-    gAllStateList.pop_front();
+    // if(mCurWidget) mCurWidget->updateData(*itor);
+    // gAllStateList.pop_front();
 
-    gFreeSem.release(1);
+    // gFreeSem.release(1);
 }
 
 void TopicWatch::updateModelCfg()
@@ -285,7 +282,7 @@ void TopicWatch::updateModelCfg()
     // 更新脚本
     std::string cfgFile = utilities::CfgFileHelper::getModelCfgDir() + objectName().toStdString() + ".yaml";
     std::string script = utilities::CfgFileHelper::getModelCfgDir() + objectName().toStdString() + ".py";
-    utilities::RosTools::generateTopicWatch(cfgFile, script);
+    utilities::RosTools::generateTopicWatch(objectName().toStdString(), cfgFile, script);
 
     // 启动监测线程
     execctl::ExecCtl::get_instance().start(objectName().toStdString());

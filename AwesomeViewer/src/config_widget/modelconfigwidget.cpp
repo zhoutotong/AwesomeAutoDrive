@@ -34,7 +34,7 @@ QWidget *parent) : QObject(parent)
         mTopicType->addItem(QString::fromStdString(itor->second));
         strings.append(QString::fromStdString(itor->first));
     }
-    connect(mTopic, &QComboBox::currentTextChanged, this, &ModelConfigItem::topicChanged);
+    // connect(mTopic, &QComboBox::currentTextChanged, this, &ModelConfigItem::topicChanged);
     // 设置自动补全
     QCompleter *completer = new QCompleter(strings, this);
     completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
@@ -98,7 +98,6 @@ ModelConfigTable::ModelConfigTable(QWidget *parent, QString modeLabel) : QWidget
     QString cfgFile = QString::fromStdString(utilities::CfgFileHelper::getModelCfgDir() + 
                     mModelLabel.toStdString() + ".yaml");
     YAML::Node n;
-    std::cout << "read cfg file:" << cfgFile.toStdString() << std::endl;
     // 如果配置文件不存在就新建一个空的出来
     if(!utilities::CfgFileHelper::checkFileExist(cfgFile.toStdString()))
     {
@@ -109,7 +108,6 @@ ModelConfigTable::ModelConfigTable(QWidget *parent, QString modeLabel) : QWidget
     {
         n = YAML::LoadFile(cfgFile.toStdString());
     }
-    std::cout << "yaml file: " << n << std::endl;
     // 遍历配置文件中的元素，创建item
     for(YAML::Node::iterator top = n.begin(); top != n.end(); top++)
     {
@@ -242,12 +240,6 @@ void ModelConfigTable::addItem()
     addItem(new ModelConfigItem("new item", false, this));
 }
 
-InfoModelConfigTable::InfoModelConfigTable(QWidget *parent) : ModelConfigTable(parent)
-{
-    addItem(new ModelConfigItem("车速", true, this));
-    addItem(new ModelConfigItem("方向盘", true, this));
-}
-
 ModelConfigWidget::ModelConfigWidget(QWidget *parent) : QWidget(parent)
   , mTableWidget(new EditTabWidget(this))
 {
@@ -259,12 +251,6 @@ ModelConfigWidget::ModelConfigWidget(QWidget *parent) : QWidget(parent)
     connect(mTableWidget, &EditTabWidget::tabAdded, this, &ModelConfigWidget::addModel);
     connect(mTableWidget, &EditTabWidget::tabCloseRequested, this, &ModelConfigWidget::removeModel);
     connect(mTableWidget, &EditTabWidget::tabTextChanged, this, &ModelConfigWidget::renameModel);
-
-    // 初始化车辆管理，这个页面生命周期与主程序相同，管理要显示的状态信息，不通过配置文件管理
-    InfoModelConfigTable &infoTable = InfoModelConfigTable::getInstance();
-    infoTable.setClosable(false);// 不允许关闭
-    infoTable.setLabel("truck_info");
-    mTableWidget->addTab(&infoTable, "车辆信息设置");
 
     // 查找模块管理配置文件是否存在，不存在就新建
     QString cfgFile = QString::fromStdString(utilities::CfgFileHelper::getModelCfgFile());
@@ -290,6 +276,11 @@ ModelConfigWidget::ModelConfigWidget(QWidget *parent) : QWidget(parent)
         n = YAML::LoadFile(cfgFile.toStdString());
     }
 
+    if(n.size() == 0)
+    {
+        addModel();
+    }
+
     // 创建模块
     for(auto itor = n.begin(); itor != n.end(); itor++)
     {
@@ -299,18 +290,12 @@ ModelConfigWidget::ModelConfigWidget(QWidget *parent) : QWidget(parent)
     }
 
     mModelCfgNode = YAML::LoadFile(cfgFile.toStdString());
-    mModelCfgNode["truck_info"] = "车辆信息设置";
 
 }
 
 ModelConfigWidget::~ModelConfigWidget()
 {
-    if(mTableWidget)
-    {
-        InfoModelConfigTable &infoTable = InfoModelConfigTable::getInstance();
-        mTableWidget->removeTab(mTableWidget->indexOf(&infoTable));
-        infoTable.setParent(nullptr);// infotable 为全局对象，此处不应该受tabwidget管理，否则将会出现内存问题
-    }
+
 }
 
 void ModelConfigWidget::addModel()

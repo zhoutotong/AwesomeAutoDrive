@@ -7,7 +7,7 @@ MainWidget::MainWidget(QWidget *parent) : QWidget(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    QSplitter *splitter = new QSplitter(this);
+    QSplitter *splitter = new QSplitter(Qt::Vertical, this);
     layout->addWidget(splitter);
 
     RvizView *rviz = new RvizView(this);

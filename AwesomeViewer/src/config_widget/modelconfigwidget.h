@@ -83,22 +83,6 @@ public slots:
     void removeItem(QWidget *item);
 };
 
-// 这个用来管理基本的信息类
-class InfoModelConfigTable : public ModelConfigTable
-{
-public:
-    ~InfoModelConfigTable(){}
-    InfoModelConfigTable() = delete;
-    InfoModelConfigTable& operator = (const InfoModelConfigTable&)=delete;
-    static InfoModelConfigTable& getInstance(){
-        static InfoModelConfigTable instance(nullptr);
-        return instance;
-    }
-
-private:
-    InfoModelConfigTable(QWidget *parent = nullptr);
-};
-
 // 这个类用来管理参数监测模块
 class ModelConfigWidget : public QWidget
 {

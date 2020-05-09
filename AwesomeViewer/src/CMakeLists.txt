@@ -21,6 +21,7 @@ include_directories(                          #相关头文件的目录
 ./main_widget
 ./detail_widget
 ${roscpp_INCLUDE_DIRS}
+${CMAKE_INCLUDE_PATH}
 )
 
 link_directories(                             #相关库文件的目录

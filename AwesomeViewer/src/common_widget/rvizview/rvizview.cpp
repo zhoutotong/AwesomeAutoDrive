@@ -22,6 +22,7 @@
 #include <QTimer>
 
 #include "utilities/cfgfilehelper.h"
+#include "utilities/rostools.h"
 
 RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), is_show_menu_(false)
   , config_file_(QString::fromStdString(utilities::CfgFileHelper::getRvizCfgFile()))
@@ -138,17 +139,21 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
     QTimer *t = new QTimer(this);
     connect(t, &QTimer::timeout, [this]{
 
-        hmi_visualization::DoubleValueMeterParam param;
-        param.range_max = 100.0;
-        param.range_min = -100.0;
-        param.value_a = 10;
-        param.value_b = 20;
-        param.label = "方向盘";
-        steeringMeter->updateData(param);
-        param.label = "车速";
-        speedMeter->updateData(param);
+        hmi_visualization::DoubleValueMeterParam paramSteering, paramSpeed;
+        paramSteering.range_max = 720.0;
+        paramSteering.range_min = -720.0;
+        paramSteering.value_a = utilities::RosTools::get_instance().getSteering();
+        paramSteering.value_b = utilities::RosTools::get_instance().getCtlSteering();
+        paramSteering.label = "方向盘";
+        steeringMeter->updateData(paramSteering);
+        paramSpeed.label = "车速";
+        paramSpeed.range_max = 20.0;
+        paramSpeed.range_min = 0.0;
+        paramSpeed.value_a = utilities::RosTools::get_instance().getSpeed();
+        paramSpeed.value_b = utilities::RosTools::get_instance().getCtlSpeed();
+        speedMeter->updateData(paramSpeed);
     });
-    t->start(100);
+    t->start(20);
 }
 RvizView::~RvizView()
 {

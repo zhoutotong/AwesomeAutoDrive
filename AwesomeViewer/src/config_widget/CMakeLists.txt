@@ -27,7 +27,7 @@ datareccfg.cpp
 include_directories(                          #相关头文件的目录
 ./
 ${YAML_CPP_INCLUDE_DIR}
-
+${CMAKE_INCLUDE_PATH}
 )
 
 link_directories(                             #相关库文件的目录
