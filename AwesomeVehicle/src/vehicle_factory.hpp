@@ -4,6 +4,7 @@
 
 #include "utilities/typedef.hpp"
 #include "vehicle.hpp"
+#include "vehicle_manager.hpp"
 
 namespace awesomevehicle
 {

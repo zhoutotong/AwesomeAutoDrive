@@ -1,23 +1,32 @@
 #pragma once
 
 #include <iostream>
+#include <memory>
 
 #include "utilities/typedef.hpp"
-#include "chassis.h"
+// #include "chassis.h"
 
 
 namespace awesomevehicle
 {
 
 
-typedef enum _DriveModel{
+typedef enum _DriveMode{
     Normal = 0,
     Auto = 1,
     Remote = 2,
-} DriveModel;
+} DriveMode;
 
 class Vehicle
 {
+
+protected:
+    using Ptr = std::shared_ptr<Vehicle>;
+    using ConstPtr = std::shared_ptr<const Vehicle>;
+
+public:
+    using VehiclePtr = typename Vehicle::Ptr;
+    using VehicleConstPtr = typename Vehicle::ConstPtr;
 
 public:
     explicit Vehicle(const AString &name);
@@ -42,11 +51,19 @@ public:
      **/
     bool setSteeringAngle(const double &angle);
 
-    bool setDriveModel(const DriveModel &model);
-    DriveModel driveModel();
+
+    /**
+     * brief: 设置驾驶模式
+     **/
+    bool setDriveMode(const DriveMode &model);
+    /**
+     * brief: 读取驾驶模式
+     **/
+    inline DriveMode driveMode() const { return mDriveMode; };
 
 private:
     const AString mSelfName; ///> 车辆名称
+    DriveMode mDriveMode;
 
 };
 } // namespace awesomevehicle
