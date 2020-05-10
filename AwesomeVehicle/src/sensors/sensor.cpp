@@ -1,6 +1,6 @@
 #include "sensor.hpp"
 
-namespace awesomevehicle
+namespace awe
 {
     
-} // namespace awesomevehicle
+} // namespace awe

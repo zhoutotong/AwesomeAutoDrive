@@ -1,13 +1,21 @@
 #pragma once
 
 #include <iostream>
+#include <utility>
 #include <map>
+#include <vector>
 
 
-namespace awesomevehicle
+namespace awe
 {
-typedef AString std::string;
-typedef AMap std::map;
-} // namespace awesomevehicle
+using AString = std::string;
+
+template<typename T1, typename T2>
+using AMap = std::map<T1, T2>;
+
+template<typename T1>
+using AVector = std::vector<T1>;
+
+} // namespace awe
 
 

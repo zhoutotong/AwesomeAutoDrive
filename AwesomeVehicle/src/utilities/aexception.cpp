@@ -1,9 +1,9 @@
 #include "aexception.hpp"
 
 
-namespace awesomevehicle
+namespace awe
 {
-AException::AException()
+AException::AException(const AString &reason) : mWhat(reason)
 {
 
 }
@@ -12,9 +12,4 @@ AException::~AException()
 
 }
 
-const AString &AException::what()
-{
-
-}
-
-} // namespace awesomevehicle
+} // namespace awe

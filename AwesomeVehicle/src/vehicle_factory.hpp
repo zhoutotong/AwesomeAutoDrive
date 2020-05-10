@@ -2,19 +2,24 @@
 
 #include <iostream>
 
+// yaml 头文件
+#include <yaml-cpp/yaml.h>
+
 #include "utilities/typedef.hpp"
 #include "vehicle.hpp"
 #include "vehicle_manager.hpp"
 
-namespace awesomevehicle
+#include "aexception.hpp"
+
+namespace awe
 {
-VehicleFactory
+class VehicleFactory
 {
+public:
     explicit VehicleFactory();
     ~VehicleFactory();
 
-    Vehicle& createVehicle(const AString &name);
-    Vehicle& createVehicle(const AString &name, const AString &cfgFile);
+    void produceVehicle(const AString &name, const AString &cfgFile, Vehicle::VehicleUniquePtr &vehicle);
 
 };
-} // namespace awesomevehicle
+} // namespace awe

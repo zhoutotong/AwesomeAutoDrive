@@ -3,11 +3,12 @@
 #include <iostream>
 
 #include "vehicle.hpp"
-#include "typedef.hpp"
+#include "utilities/typedef.hpp"
+#include "utilities/aexception.hpp"
 
-namespace vehicleawesome
+namespace awe
 {
-VehicleManager
+class VehicleManager
 {
 
 public:
@@ -20,6 +21,14 @@ public:
         return instance;
     }
 
+    void add(const AString &tag, const Vehicle::VehicleUniquePtr &vehicle);
+    void remove(const AString &tag);
+
+    void runAll();
+    void stopAll();
+    void run(const AString &name);
+    void stop(const AString &name);
+
 private:
     VehicleManager()
     {
@@ -28,7 +37,7 @@ private:
 
 // 私有成员变量定义
 private:
-    AMap<AString, Vehicle::VehiclePtr> mVehicles;    ///> 车辆列表，用于管理全部车辆
+    AMap<AString, Vehicle::VehicleUniquePtr> mVehicles;    ///> 车辆列表，用于管理全部车辆
 
 };
-} // namespace vehicleawesome
+} // namespace awe

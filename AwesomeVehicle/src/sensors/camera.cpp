@@ -1,6 +1,6 @@
 #include "camera.hpp"
 
-namespace awesomevehicle
+namespace awe
 {
 Camera::Camera() : Sensor(SENSOR_TYPE_CAMERA)
 {

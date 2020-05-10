@@ -3,17 +3,20 @@
 #include <iostream>
 #include <exception>
 
-#include "utilities/typedef.hpp"
+#include "typedef.hpp"
 
 
-namespace awesomevehicle
+namespace awe
 {
-AException : public std::exception
+class AException : public std::exception
 {
 public:
-    explicit AException();
+    explicit AException(const AString &reason);
     ~AException();
 
-    const AString &what();
+    const char* what()const noexcept override { return mWhat.c_str(); };
+
+private:
+    const AString mWhat;
 };
-} // namespace awesomevehicle
+} // namespace awe
