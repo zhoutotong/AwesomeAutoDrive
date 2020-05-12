@@ -31,10 +31,10 @@ void VehicleFactory::produceVehicle(const AString &name, const AString &cfgFile,
     veh["params"] = "~/.config/vehicle.yaml";
     veh["sensors"].push_back(item);
 
-    n.push_back(vehicle);
+    n.push_back(veh);
 
-    Sensor::SensorUniquePtr sensor = std::make_unique<Sensor>();
-    vehicle->plugSensor("Cam", sensor);
+    // Sensor::SensorUniquePtr sensor = std::make_unique<Sensor>();
+    // vehicle->plugSensor("Cam", sensor);
 
 
     std::cout << n << std::endl;

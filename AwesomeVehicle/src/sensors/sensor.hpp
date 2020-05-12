@@ -39,10 +39,10 @@ public:
     ~Sensor(){}
 
     // 传感器控制接口
-    virtual void setup() = 0;    // 初始化
-    virtual void release() = 0;  // 销毁
-    virtual void start() = 0;    // 启动
-    virtual void stop() = 0;     // 停止
+    virtual void setup();    // 初始化
+    virtual void release();  // 销毁
+    virtual void start();    // 启动
+    virtual void stop();     // 停止
 
 
     // 读取传感器类型

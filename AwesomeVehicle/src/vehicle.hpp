@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "utilities/typedef.hpp"
+#include "utilities/aexception.hpp"
 #include "sensors/sensor.hpp"
 // #include "chassis.h"
 
@@ -86,7 +87,7 @@ public:
 
 // 装配接口
 public:
-    void plugSensor(const AString &tag, const Sensor::SensorUniquePtr &sensor);
+    void plugSensor(const AString &tag, Sensor::SensorUniquePtr &sensor);
 
 private:
     const AString mSelfName; ///> 车辆名称

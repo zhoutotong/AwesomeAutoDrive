@@ -21,7 +21,7 @@ public:
         return instance;
     }
 
-    void add(const AString &tag, const Vehicle::VehicleUniquePtr &vehicle);
+    void add(const AString &tag, Vehicle::VehicleUniquePtr &vehicle);
     void remove(const AString &tag);
 
     void runAll();

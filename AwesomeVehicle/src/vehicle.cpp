@@ -109,11 +109,18 @@ void Vehicle::setDriveMode(const DriveMode &model)
 
 }
 
-void Vehicle::plugSensor(const AString &tag, const Sensor::SensorUniquePtr &sensor)
+void Vehicle::plugSensor(const AString &tag, Sensor::SensorUniquePtr &sensor)
 {
+    // 查找是否存在重名的
+    auto itor = mSensors.find(tag);
+    if(itor == mSensors.end())
+    {
+        throw AException("Plug Sensor To Vehicle Failed: Same Tag In Sensors.");
+    }
     mSensors.insert(
-        std::make_pair<AString, Sensor::SensorUniquePtr>(tag.c_str(), std::make_unique<Sensor>(std::move(sensor)))
-    );
+        std::make_pair<AString, Sensor::SensorUniquePtr>(
+            tag.c_str(), std::move(sensor)
+        ));
 }
 
 } // namespace awe
