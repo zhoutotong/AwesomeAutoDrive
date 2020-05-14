@@ -10,6 +10,9 @@
 
 #include "datarec.h"
 
+#include "rviz/visualization_frame.h"
+#include "rvizview/visualizer_app.h"
+
 
 namespace mainwidget
 {
@@ -17,7 +20,7 @@ class MainWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MainWidget(QWidget *parent = nullptr);
+    explicit MainWidget(const rviz::VisualizerApp *vapp, QWidget *parent = nullptr);
     ~MainWidget();
 
 protected:

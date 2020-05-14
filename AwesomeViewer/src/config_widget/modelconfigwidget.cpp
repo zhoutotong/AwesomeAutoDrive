@@ -27,18 +27,28 @@ QWidget *parent) : QObject(parent)
     mTopicType->setEditable(true);
     QStringList topicList;
     std::map<std::string, std::string> ts = utilities::RosTools::getTopicList();
-    QStringList strings;
+    QStringList topicStrings;
+    QStringList topicTypeStrings;
     for(auto itor = ts.begin(); itor != ts.end(); itor++)
     {
         mTopic->addItem(QString::fromStdString(itor->first));
-        mTopicType->addItem(QString::fromStdString(itor->second));
-        strings.append(QString::fromStdString(itor->first));
+        
+        // 去重
+        if(-1 == mTopicType->findText(QString::fromStdString(itor->second)))
+        {
+            mTopicType->addItem(QString::fromStdString(itor->second));
+            topicTypeStrings.append(QString::fromStdString(itor->second));
+        }
+        topicStrings.append(QString::fromStdString(itor->first));
     }
-    // connect(mTopic, &QComboBox::currentTextChanged, this, &ModelConfigItem::topicChanged);
+    connect(mTopic, &QComboBox::currentTextChanged, this, &ModelConfigItem::topicChanged);
     // 设置自动补全
-    QCompleter *completer = new QCompleter(strings, this);
+    QCompleter *completer = new QCompleter(topicStrings, this);
     completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
     mTopic->setCompleter(completer);
+    completer = new QCompleter(topicTypeStrings, this);
+    completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+    mTopicType->setCompleter(completer);
 
     // 初始化选项控件
     QHBoxLayout *cfgLayout = new QHBoxLayout(mCfgWidget);

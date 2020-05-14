@@ -207,7 +207,7 @@ TopicWatch::TopicWatch(const QString &modName, const QString &modeLabel, QWidget
         ros::Rate loop(10);
         while (mIsWatching)
         {
-            ros::spinOnce();
+            // ros::spinOnce();
             loop.sleep();
         }
         std::cout << im << " topic watch exit!!!" << std::endl;

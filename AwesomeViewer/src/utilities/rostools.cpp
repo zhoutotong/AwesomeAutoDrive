@@ -2,6 +2,7 @@
 #include <QDebug>
 
 #include <mutex>
+#include <exception>
 
 double gSpeed;
 double gSteering;
@@ -31,9 +32,14 @@ void RosTools::initRosTools(int argc, char *argv[])
 
         while(__isWorking)
         {
+            try{
             ros::spinOnce();
             loop.sleep();
+ }catch(std::exception &e){
+    std::cout << "ros run exception: " << e.what() << std::endl;
+}           
         }
+
 
         std::cout << "Ros Tools Thread Is Exist!!!" << std::endl;
     });

@@ -48,6 +48,7 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
 
     main_layout->addWidget(render_panel_);
 
+
     // 检查配置文件是否存在
     if (!utilities::CfgFileHelper::checkFileExist(config_file_.toStdString()))
     {
@@ -76,8 +77,12 @@ RvizView::RvizView(QWidget *parent) : QWidget(parent), setup_display(nullptr), i
             qDebug() << qPrintable(reader.errorMessage());
             return;
         }
+        QString val;
+        config_.mapGetString("Name", &val);
+        qDebug() << val;
         manager_->load(config_);
     }
+
 
     // add steering display
     moduleStatusInfoPanel =
@@ -187,14 +192,14 @@ RvizView::~RvizView()
         render_panel_->deleteLater();
         render_panel_ = nullptr;
     }
-
+qDebug() << "rviz exit and save cfg file";
     // 程序退出是保存配置文件，不考虑异常情况
     rviz::YamlConfigWriter writer;
     // QFile file(config_file_);
     // file.remove();
     QFile::remove(config_file_);
     writer.writeFile(config_, config_file_);
-
+qDebug() << "save ok";
     if (writer.error())
     {
         printf("%s", qPrintable(writer.errorMessage()));
@@ -233,6 +238,7 @@ void RvizView::__setupMenu()
     __addAction(menu_, "Displays", std::bind(&RvizView::__showDisplayPanel, this));
     __addAction(menu_, "Views", std::bind(&RvizView::__showViewsPanel, this));
     __addAction(menu_, "AddTools", std::bind(&RvizView::__addTools, this), false);
+    __addAction(menu_, "LoadConfig", std::bind(&RvizView::__loadCfgFile, this), false);
 
     tools_act_group_ = new QActionGroup(menu_);
     tools_act_group_->setExclusive(true);
@@ -310,10 +316,10 @@ void RvizView::__showViewsPanel()
     panel->show();
 }
 
-void RvizView::readChangedData(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
-{
-    qDebug() << "data is changed" << topLeft << bottomRight << roles;
-}
+// void RvizView::readChangedData(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+// {
+//     qDebug() << "data is changed" << topLeft << bottomRight << roles;
+// }
 
 QAction *RvizView::__addAction(QMenu *menu, const QString name, std::function<void(bool)> cb, bool checkable)
 {
@@ -344,6 +350,41 @@ void RvizView::__addTools()
     }
     manager_->startUpdate();
     activateWindow(); // Force keyboard focus back on main window.
+}
+
+void RvizView::__loadCfgFile()
+{
+    manager_->stopUpdate();
+    config_file_ = QFileDialog::getOpenFileName( this, "Choose a file to open",
+                                                   config_file_,
+                                                   "RViz config files (" CONFIG_EXTENSION_WILDCARD ")" );
+    
+    manager_->startUpdate();
+    // 检查配置文件是否存在
+    if (!utilities::CfgFileHelper::checkFileExist(config_file_.toStdString()))
+    {
+        // 不存在就返回
+        QString message = config_file_ + " does not exist!";
+        QMessageBox::critical( this, "Config file does not exist", message );
+        return;
+    }
+
+    // 加载配置文件
+    if (QFile::exists(config_file_))
+    {
+        std::cout << "cfg file is exit: " << config_file_.toStdString() << std::endl;
+        rviz::YamlConfigReader reader;
+        reader.readFile(config_, config_file_);
+        if (reader.error())
+        {
+            qDebug() << qPrintable(reader.errorMessage());
+            return;
+        }
+        // QString val;
+        // config_.mapGetString("Name", &val);
+        // qDebug() << val;
+        manager_->load(config_.mapGetChild( "Visualization Manager" ));
+    }
 }
 
 bool RvizView::eventFilter(QObject *obj, QEvent *e)

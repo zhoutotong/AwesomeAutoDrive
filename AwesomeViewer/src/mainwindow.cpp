@@ -7,8 +7,11 @@
 #include "statewidget.h"
 #include "utilities/execctl.h"
 
-MainWindow::MainWindow(QWidget *parent)
+#include <QDebug>
+
+MainWindow::MainWindow(rviz::VisualizerApp *vapp, QWidget *parent)
     : QMainWindow(parent)
+    , mVapp(vapp)
 {
     QWidget *w = new QWidget(this);
     QVBoxLayout *l = new QVBoxLayout(w);
@@ -21,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     tabWidget->setTabPosition(QTabWidget::West);
 
-    tabWidget->addTab(new mainwidget::MainWidget(this), "Main");
+    tabWidget->addTab(new mainwidget::MainWidget(vapp, this), "Main");
     tabWidget->addTab(new StateWidget(this), "Detail");
     // tabWidget->addTab(new RosToolsWidget(this), "RosTools");
     // tabWidget->addTab(new DataSetWidget(this), "DataSet");
@@ -33,6 +36,15 @@ MainWindow::MainWindow(QWidget *parent)
     // statusBar()->showMessage("null");
 
 }
+
+void MainWindow::closeEvent( QCloseEvent* event )
+{
+    if(mVapp){
+        mVapp->getFrame()->close();
+        mVapp->getFrame()->setParent(nullptr);
+    }
+}
+
 
 MainWindow::~MainWindow()
 {

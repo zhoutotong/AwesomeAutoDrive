@@ -9,6 +9,8 @@
 #include <QAction>
 #include <QDialog>
 #include <QVariant>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include <functional>
 
@@ -35,6 +37,9 @@ namespace rviz
     class VisualizationManager;
 }
 
+#define CONFIG_EXTENSION "rviz"
+#define CONFIG_EXTENSION_WILDCARD "*." CONFIG_EXTENSION
+
 class RvizView : public QWidget
 {
     Q_OBJECT
@@ -59,7 +64,7 @@ private:
     QMenu *menu_;
     QActionGroup *tools_act_group_;
     bool is_show_menu_;
-    const QString config_file_;
+    QString config_file_;
 
     void __setupMenu();
     QAction* __addAction(QMenu *menu, const QString name, std::function<void(bool)> cb, bool checkable = false);
@@ -70,6 +75,7 @@ private:
     void __showDisplayPanel();
     void __showViewsPanel();
     void __addTools();
+    void __loadCfgFile();
 
 
     void logoutModelData(rviz::Property *p);
@@ -80,7 +86,7 @@ protected:
     void resizeEvent(QResizeEvent *e) override;
 
 public slots:
-    void readChangedData(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
+    // void readChangedData(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
 };
 
 #endif // end of _RVIZ_VIEW_H_

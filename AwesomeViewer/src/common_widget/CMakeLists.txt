@@ -19,12 +19,14 @@ find_package(yaml-cpp REQUIRED)
 find_package(jsk_rviz_plugins REQUIRED)
 find_package(std_msgs REQUIRED)
 
-message(yamle-cpp:::: ${jsk_rviz_plugins_INCLUDE_DIRS})
+message(yamle-cpp:::: ${OGRE_INCLUDE_DIRS})
 
 set(SOURCE_FILES
 edittabwidget.cpp
 rvizview/rvizview.cpp
 rvizview/doublevaluemeter.cpp
+rvizview/visualizer_app.cpp
+rvizview/visualization_frame.cpp
 )
 
 include_directories(                          #相关头文件的目录

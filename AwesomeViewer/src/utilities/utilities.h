@@ -2,6 +2,8 @@
 #define _UTILITIES_H_
 #include <iostream>
 #include <list>
+#include <vector>
+#include <sstream>
 
 namespace utilities
 {
@@ -14,6 +16,22 @@ public:
 
     virtual void notify(const NotifyType &data) = 0;
 };
+
+class APathHelper
+{
+public:
+    APathHelper(){}
+
+    static void init(const char *name);
+    static std::string getAppDir(){ return mDir; }
+    static std::string getApp() { return mApp; }
+private:
+    static std::string mDir;
+    static std::string mApp;
+
+};
+
+
 } // namespace utilities
 
 
