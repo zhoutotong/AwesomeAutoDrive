@@ -6,8 +6,8 @@
 #include "utilities/typedef.hpp"
 #include "utilities/aexception.hpp"
 #include "sensors/sensor.hpp"
-// #include "chassis.h"
-
+#include "base_factory.hpp"
+#include "base_device.hpp"
 
 namespace awe
 {
@@ -33,7 +33,8 @@ public:
     using VehicleUniquePtr = typename Vehicle::UniquePtr;
 
 public:
-    explicit Vehicle(const AString &name);
+    Vehicle() = delete;
+    Vehicle(const AString &name, const AString &tag, const AString &label, const AString &type);
     ~Vehicle();
 
     /**
@@ -87,13 +88,16 @@ public:
 
 // 装配接口
 public:
-    void plugSensor(const AString &tag, Sensor::SensorUniquePtr &sensor);
+    void plugDevice(BaseDevice::BaseDeviceUniquePtr &dev);
 
 private:
-    const AString mSelfName; ///> 车辆名称
+    const AString mName;  ///> 车辆名称
+    const AString mTag;   ///> 标签
+    const AString mLabel; ///> 识别标签
+    const AString mType;  ///> 类别
     DriveMode mDriveMode;
 
-    AMap<const AString, const Sensor::SensorUniquePtr> mSensors;
+    AMap<const AString, const BaseDevice::BaseDeviceUniquePtr> mDevices;
 
 };
 } // namespace awe

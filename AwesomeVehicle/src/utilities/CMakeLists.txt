@@ -11,6 +11,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(SOURCE_FILES
 aexception.cpp
+logtools.cpp
+cfgchecker.cpp
 )
 
 include_directories(                          #相关头文件的目录

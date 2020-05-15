@@ -9,7 +9,7 @@
 #include "vehicle.hpp"
 #include "vehicle_manager.hpp"
 
-#include "aexception.hpp"
+#include "awe.hpp"
 
 namespace awe
 {
@@ -20,6 +20,12 @@ public:
     ~VehicleFactory();
 
     void produceVehicle(const AString &name, const AString &cfgFile, Vehicle::VehicleUniquePtr &vehicle);
+    void produceVehicle(const YAML::Node &root, Vehicle::VehicleUniquePtr &vehicle);
+
+private:
+
+    AMap<const AString, const BaseFactory&> mFactorys;
+
 
 };
 } // namespace awe

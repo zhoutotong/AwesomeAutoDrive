@@ -2,7 +2,9 @@
 
 namespace awe
 {
-Camera::Camera() : Sensor(SENSOR_TYPE_CAMERA)
+
+Camera::Camera(const AString &name, const AString &tag, const AString &label, const AString &type) : 
+    Sensor(name, tag, label, type)
 {
 
 }

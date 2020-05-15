@@ -25,7 +25,7 @@ void VehicleManager::add(const AString &tag, Vehicle::VehicleUniquePtr &vehicle)
 {
     // 查找是否存在重名的
     auto itor = mVehicles.find(tag);
-    if(itor == mVehicles.end())
+    if(itor != mVehicles.end())
     {
         throw AException("Add Vehicle To Manager Failed: Same Tag In Vehicles.");
     }

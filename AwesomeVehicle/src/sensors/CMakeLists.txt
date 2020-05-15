@@ -12,10 +12,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(SOURCE_FILES
 sensor.cpp
 camera.cpp
+sensor_factory.cpp
+daheng/daheng.cpp
+simple_cam/simple_vcam.cpp
 )
 
 include_directories(                          #相关头文件的目录
 ./
+../
 )
 
 
