@@ -21,13 +21,18 @@ public:
         return instance;
     }
 
-    void add(const AString &tag, Vehicle::VehicleUniquePtr &vehicle);
-    void remove(const AString &tag);
+    void add(const AString &id, const Vehicle::VehiclePtr &vehicle);
+    void remove(const AString &id);
+
+    void setupAll();
+    void releaseAll();
 
     void runAll();
     void stopAll();
     void run(const AString &name);
     void stop(const AString &name);
+
+    void exist();
 
 private:
     VehicleManager()
@@ -37,7 +42,7 @@ private:
 
 // 私有成员变量定义
 private:
-    AMap<AString, Vehicle::VehicleUniquePtr> mVehicles;    ///> 车辆列表，用于管理全部车辆
+    AMap<AString, Vehicle::VehiclePtr> mVehicles;    ///> 车辆列表，用于管理全部车辆
 
 };
 } // namespace awe

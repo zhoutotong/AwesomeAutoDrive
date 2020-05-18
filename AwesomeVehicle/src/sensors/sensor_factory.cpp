@@ -16,7 +16,7 @@ BaseFactory("","","","")
     mSensors.insert(std::make_pair(AString("Camera"), cams));
 }
 
-BaseDevice::BaseDeviceUniquePtr SensorFactory::produce(const YAML::Node &node) const
+BaseDevice::BaseDevicePtr SensorFactory::produce(const YAML::Node &node) const
 {
     CfgChecker::nodeIsOk(node);
     auto type = mSensors.find(node["type"].as<AString>());
@@ -26,10 +26,10 @@ BaseDevice::BaseDeviceUniquePtr SensorFactory::produce(const YAML::Node &node) c
         auto sensorMaker = sensors->find(node["tag"].as<AString>());
         if(sensorMaker != sensors->end())
         {
-            // const AString &name, const AString &tag, const AString &label, const AString &type
+            // const AString &name, const AString &tag, const AString &id, const AString &type
             return (sensorMaker->second)(node["name"].as<AString>(), 
             node["tag"].as<AString>(), 
-            node["label"].as<AString>(), 
+            node["id"].as<AString>(), 
             node["type"].as<AString>());
         }
         else

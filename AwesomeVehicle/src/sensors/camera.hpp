@@ -10,7 +10,7 @@ namespace awe
 class Camera : public Sensor
 {
 public:
-    Camera(const AString &name, const AString &tag, const AString &label, const AString &type);
+    Camera(const AString &name, const AString &tag, const AString &id, const AString &type);
     ~Camera();
 
     virtual void setup() = 0;    // 初始化

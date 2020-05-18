@@ -23,7 +23,7 @@ public:
 
 public:
     BaseDevice(const BaseDevice &) = delete;
-    BaseDevice(const AString &name, const AString &tag, const AString &label, const AString &type);
+    BaseDevice(const AString &name, const AString &tag, const AString &id, const AString &type);
     ~BaseDevice();
 
     virtual void setup();    // 初始化
@@ -33,12 +33,12 @@ public:
 
     inline AString getName() { return mName; }
     inline AString getTag()  { return mTag; }
-    inline AString getLabel() { return mLabel; }
+    inline AString getId() { return mId; }
     inline AString getType() { return mType; }
 private:
     const AString mName;  ///> 车辆名称
     const AString mTag;   ///> 标签
-    const AString mLabel; ///> 识别标签
+    const AString mId; ///> 识别标签
     const AString mType;  ///> 类别
 
 };

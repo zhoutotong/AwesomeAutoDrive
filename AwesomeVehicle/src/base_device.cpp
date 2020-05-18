@@ -3,10 +3,10 @@
 namespace awe
 {
 
-BaseDevice::BaseDevice(const AString &name, const AString &tag, const AString &label, const AString &type) :
+BaseDevice::BaseDevice(const AString &name, const AString &tag, const AString &id, const AString &type) :
     mName(name)
   , mTag(tag)
-  , mLabel(label)
+  , mId(id)
   , mType(type)
 {
 

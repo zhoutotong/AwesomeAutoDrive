@@ -4,8 +4,8 @@
 namespace awe
 {
 
-DaHeng::DaHeng(const AString &name, const AString &tag, const AString &label, const AString &type) : 
-    Camera(name, tag, label, type)
+DaHeng::DaHeng(const AString &name, const AString &tag, const AString &id, const AString &type) : 
+    Camera(name, tag, id, type)
 {
     AWE_INFO << __FUNCTION__ << " in " << __FILE__ << std::endl;
 }

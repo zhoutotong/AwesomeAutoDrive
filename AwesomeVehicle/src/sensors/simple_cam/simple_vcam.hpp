@@ -7,7 +7,7 @@ namespace awe
 class SimpleVCam : public Camera
 {
 public:
-    SimpleVCam(const AString &name, const AString &tag, const AString &label, const AString &type);
+    SimpleVCam(const AString &name, const AString &tag, const AString &id, const AString &type);
     ~SimpleVCam();
 
     virtual void setup() override;   // 初始化

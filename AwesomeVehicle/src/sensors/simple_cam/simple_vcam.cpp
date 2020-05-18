@@ -4,8 +4,8 @@
 namespace awe
 {
 
-SimpleVCam::SimpleVCam(const AString &name, const AString &tag, const AString &label, const AString &type) : 
-    Camera(name, tag, label, type)
+SimpleVCam::SimpleVCam(const AString &name, const AString &tag, const AString &id, const AString &type) : 
+    Camera(name, tag, id, type)
 {
     awe::AWE_INFO << __FUNCTION__ << " in " << __FILE__ << std::endl;
 }

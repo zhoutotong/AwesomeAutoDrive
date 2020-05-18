@@ -10,13 +10,6 @@
 namespace awe
 {
 
-
-typedef enum _SensorType
-{
-    SENSOR_TYPE_UNDEF = 0,
-    SENSOR_TYPE_CAMERA = 1,
-} SensorType;
-
 class Sensor : public BaseDevice
 {
 
@@ -31,8 +24,8 @@ public:
 
 public:
 
-    Sensor(const AString &name, const AString &tag, const AString &label, const AString &type) : 
-    BaseDevice(name, tag, label, type)
+    Sensor(const AString &name, const AString &tag, const AString &id, const AString &type) : 
+    BaseDevice(name, tag, id, type)
     {
     }
 

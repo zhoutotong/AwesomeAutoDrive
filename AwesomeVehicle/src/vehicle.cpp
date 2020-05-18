@@ -3,10 +3,10 @@
 
 namespace awe
 {
-Vehicle::Vehicle(const AString &name, const AString &tag, const AString &label, const AString &type) : 
+Vehicle::Vehicle(const AString &name, const AString &tag, const AString &id, const AString &type) : 
     mName(name)
   , mTag(tag)
-  , mLabel(label)
+  , mId(id)
   , mType(type)
 {
 }
@@ -107,23 +107,21 @@ void Vehicle::setSteeringAngle(const double &angle)
 /**
  * brief: 设置驾驶模式
  **/
-void Vehicle::setDriveMode(const DriveMode &model)
+void Vehicle::setDriveModel(const DriveModel &model)
 {
-
+    mDriveModel = model;
 }
 
-void Vehicle::plugDevice(BaseDevice::BaseDeviceUniquePtr &dev)
+void Vehicle::plugDevice(const BaseDevice::BaseDevicePtr &dev)
 {
     // 查找是否存在重名的
-    auto itor = mDevices.find(dev->getLabel());
+    auto itor = mDevices.find(dev->getId());
     if(itor != mDevices.end())
     {
-        throw AException("Plug Device " + dev->getLabel() + " To Vehicle Failed: Same Tag In Sensors.");
+        throw AException("Plug Device " + dev->getId() + " To Vehicle Failed: Same Tag In Sensors.");
     }
-    mDevices.insert(
-        std::make_pair<AString, BaseDevice::BaseDeviceUniquePtr>(
-            dev->getLabel(), std::move(dev)
-        ));
+
+    mDevices[dev->getId()] = dev;
 }
 
 } // namespace awe

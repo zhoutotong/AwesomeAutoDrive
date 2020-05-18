@@ -9,7 +9,7 @@ namespace awe
 class SensorFactory : public BaseFactory
 {
 protected:
-    typedef BaseDevice::BaseDeviceUniquePtr(*_SensorCreator)(const AString &name, const AString &tag, const AString &label, const AString &type);
+    typedef BaseDevice::BaseDevicePtr(*_SensorCreator)(const AString &name, const AString &tag, const AString &id, const AString &type);
 
 public:
 
@@ -29,7 +29,7 @@ public:
         return sf;
     }
 
-    BaseDevice::BaseDeviceUniquePtr produce(const YAML::Node &node) const override;
+    BaseDevice::BaseDevicePtr produce(const YAML::Node &node) const override;
 
 private:
     explicit SensorFactory();
@@ -40,7 +40,7 @@ private:
 #define REGISTER_SENSOR(tag, obj) \
         std::make_pair<AString, SensorCreator>(\
         AString(tag), \
-        [](const AString &_name, const AString &_tag, const AString &_label, const AString &_type)->\
-        BaseDevice::BaseDeviceUniquePtr{return std::make_unique<obj>(_name, _tag, _label, _type);})
+        [](const AString &_name, const AString &_tag, const AString &_id, const AString &_type)->\
+        BaseDevice::BaseDevicePtr{return std::make_shared<obj>(_name, _tag, _id, _type);})
 };
 } // namespace awe

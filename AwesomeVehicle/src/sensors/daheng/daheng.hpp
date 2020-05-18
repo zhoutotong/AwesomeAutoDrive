@@ -9,7 +9,7 @@ class DaHeng : public Camera
 {
 
 public:
-    DaHeng(const AString &name, const AString &tag, const AString &label, const AString &type);
+    DaHeng(const AString &name, const AString &tag, const AString &id, const AString &type);
     ~DaHeng();
 
     virtual void setup() override;   // 初始化

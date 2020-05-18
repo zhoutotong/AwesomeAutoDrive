@@ -2,10 +2,10 @@
 
 namespace awe
 {
-BaseFactory::BaseFactory(const AString &name, const AString &tag, const AString &label, const AString &type) :
+BaseFactory::BaseFactory(const AString &name, const AString &tag, const AString &id, const AString &type) :
     mName(name)
   , mTag(tag)
-  , mLabel(label)
+  , mId(id)
   , mType(type)
 {
 
@@ -16,10 +16,10 @@ BaseFactory::~BaseFactory()
 
 }
 
-BaseDevice::BaseDeviceUniquePtr BaseFactory::produce(const YAML::Node &node) const
+BaseDevice::BaseDevicePtr BaseFactory::produce(const YAML::Node &node) const
 {
     AWE_WARN << "Device Factory " << node.as<AString>() << " Is Not Exist!!!" << std::endl;
-    return std::make_unique<BaseDevice>("","","","");
+    return nullptr;
 }
 
 } // namespace awe

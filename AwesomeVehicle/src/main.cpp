@@ -2,14 +2,19 @@
 
 #include <yaml-cpp/yaml.h>
 
+
 #include "awesome_vehicle.hpp"
 #include "vehicle.hpp"
 #include "vehicle_manager.hpp"
 #include "vehicle_factory.hpp"
 #include "awe.hpp"
+#include "borui/borui.hpp"
 
 int main(int argc, char *argv[])
 {
+    awe::init();
+    awe::VehicleFactory<awe::BoRui> vf;
+
     char ch;
     awe::AWE_INFO << "Awesome Vehicle" << std::endl;
 
@@ -17,7 +22,7 @@ int main(int argc, char *argv[])
     YAML::Node vehicleNode = YAML::Load("{}");
 
     vehicleNode["name"] = "博瑞";
-    vehicleNode["label"] = "qingdao_borui";
+    vehicleNode["id"] = "qingdao_borui";
     vehicleNode["tag"] = "borui";
     vehicleNode["type"] = "Car";
     vehicleNode["params"] = YAML::Load("{}");
@@ -25,7 +30,7 @@ int main(int argc, char *argv[])
 
     YAML::Node sensorNode = YAML::Load("{}");
     sensorNode["name"] = "大恒相机";
-    sensorNode["label"] = "front_cam";
+    sensorNode["id"] = "front_cam";
     sensorNode["tag"] = "DaHeng";
     sensorNode["type"] = "Camera";
     sensorNode["params"] = YAML::Load("{}");
@@ -47,14 +52,15 @@ int main(int argc, char *argv[])
 
     for (auto itor = root.begin(); itor != root.end(); itor++)
     {
-        awe::Vehicle::VehicleUniquePtr vehicle;
-        awe::VehicleFactory vf;
+        awe::VehicleFactory<awe::BoRui>::DevPtr vehicle;
         vf.produceVehicle(*itor, vehicle);
-        awe::VehicleManager::getInstance().add("", vehicle);
+        awe::VehicleManager::getInstance().add("borui", static_cast<awe::Vehicle::VehiclePtr>(vehicle));
     }
 
     try
     {
+        // 初始化全部资源
+        awe::VehicleManager::getInstance().setupAll();
         // 启动所有车辆
         awe::VehicleManager::getInstance().runAll();
 
@@ -63,6 +69,8 @@ int main(int argc, char *argv[])
 
         // 关闭所有车辆
         awe::VehicleManager::getInstance().stopAll();
+        //释放相关资源
+        awe::VehicleManager::getInstance().releaseAll();
     }
     catch (awe::AException &e)
     {
@@ -70,6 +78,7 @@ int main(int argc, char *argv[])
     }
 
 exit:
+    awe::VehicleManager::getInstance().exist();
     awe::AWE_INFO << "Vehicle Exist!!!" << std::endl;
     return 0;
 }

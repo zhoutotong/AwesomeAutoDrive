@@ -12,17 +12,17 @@ namespace awe
 class BaseFactory
 {
 public:
-    BaseFactory(const AString &name, const AString &tag, const AString &label, const AString &type);
+    BaseFactory(const AString &name, const AString &tag, const AString &id, const AString &type);
     ~BaseFactory();
 
     void produce();
 
-    virtual BaseDevice::BaseDeviceUniquePtr produce(const YAML::Node &node) const;
+    virtual BaseDevice::BaseDevicePtr produce(const YAML::Node &node) const;
 
 private:
     const AString mName;  ///> 名称
     const AString mTag;   ///> 标签
-    const AString mLabel; ///> 识别标签
+    const AString mId; ///> 识别标签
     const AString mType;  ///> 类别
 };
 

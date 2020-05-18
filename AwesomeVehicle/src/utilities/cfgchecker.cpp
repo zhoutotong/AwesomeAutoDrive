@@ -23,10 +23,10 @@ void CfgChecker::nodeIsOk(const YAML::Node &n)
         error_str += "<type> ";
     }
 
-    if(!n["label"].IsDefined())
+    if(!n["id"].IsDefined())
     {
         isok = false;
-        error_str += "<label> ";
+        error_str += "<id> ";
     }
 
     if(!isok)
