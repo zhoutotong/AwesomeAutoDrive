@@ -1,0 +1,1 @@
+{/imu/data: {params: {header.seq: {min: 0.00, max: 999999.00, name: 惯导, type: Int}}, type: sensor_msgs/Imu, hz_max: 40.00, hz_min: 35.00}, /velodyne/bounding_boxes: {hz_max: 10.00, type: jsk_recognition_msgs/BoundingBoxArray, params: {boxes.length(): {min: 0.00, type: Int, max: 999999.00, name: 激光雷达}}, hz_min: 9.00}}
