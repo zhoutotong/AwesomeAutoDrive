@@ -16,6 +16,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "utilities/cfgfilehelper.h"
+#include "utilities/execctl.h"
 
 namespace mainwidget
 {
@@ -35,6 +36,7 @@ public:
 
     inline const QList<QWidget*> getWidgetList() { return mWidgetList; }
     inline DataRecItemStatus getItemStatus() { return mCurrentStatus; }
+    inline QString getNameLabel() { return mNameLabel->text(); }
 private:
 
 
@@ -46,9 +48,20 @@ private:
 
     DataRecItemStatus mCurrentStatus;
 
+    execctl::CmdExecable *mCmdExec;
+    QString mCmd;
+
     const QList<QWidget*> mWidgetList;
 
     void updateBtnStatus(DataRecItemStatus s);
+    void loadCmd();
+
+
+
+signals:
+    void start();
+    void stop();
+    void pause();
 
 };
 
@@ -66,6 +79,11 @@ private:
     QTableWidget *mTable;
     QList<DataRecItem*> mItemList;
     void loadItemFromCfgFile(const QString &cfg);
+
+public slots:
+    void start();
+    void stop();
+    void pause();
 };
 
 

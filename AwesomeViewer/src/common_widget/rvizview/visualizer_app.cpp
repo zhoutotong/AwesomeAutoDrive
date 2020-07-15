@@ -60,6 +60,8 @@
 
 #include "visualization_frame.h"
 
+#include "utilities/cfgfilehelper.h"
+
 #define CATCH_EXCEPTIONS 0
 
 namespace po = boost::program_options;
@@ -136,6 +138,8 @@ bool VisualizerApp::init( int argc, char** argv )
 
     std::string display_config, fixed_frame, splash_path, help_path;
     int force_gl_version = 0;
+
+    display_config = utilities::CfgFileHelper::getRvizCfgFile();
 
     po::options_description options;
     options.add_options()

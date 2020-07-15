@@ -13,10 +13,18 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(current_dir ${CMAKE_CURRENT_SOURCE_DIR})
 
+link_directories(
+    ${current_dir}/ros_tools/devel/lib
+)
+
+find_package(awe_visualization REQUIRED)
+
 # 添加查找目录
 set(CMAKE_INCLUDE_PATH 
 "${current_dir}/ros_tools/devel/include"
 "${current_dir}/ros_tools/src/nox_msgs/include"
+${awe_visualization_INCLUDE_DIRS}
+${current_dir}/ros_tools/devel/include
 )
 set(CMAKE_LIBRARY_PATH ${current_dir}/ros_tools/devel/lib)
 

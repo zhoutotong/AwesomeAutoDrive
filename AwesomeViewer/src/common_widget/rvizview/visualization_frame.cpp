@@ -92,6 +92,7 @@
 
 #include "visualization_frame.h"
 
+#include "utilities/cfgfilehelper.h"
 #include <QDebug>
 
 namespace fs = boost::filesystem;
@@ -240,7 +241,6 @@ void VisualizationFrame::updateFps()
 
 void VisualizationFrame::closeEvent( QCloseEvent* event )
 {
-  qDebug() << "visualization fram close event...";
   if( prepareToExit() )
   {
     event->accept();
@@ -289,7 +289,6 @@ void VisualizationFrame::setSplashPath( const QString& splash_path )
 void VisualizationFrame::initialize(const QString& display_config_file )
 {
   initConfigs();
-
   loadPersistentSettings();
 
   QIcon app_icon( QString::fromStdString( (fs::path(package_path_) / "icons/package.png").BOOST_FILE_STRING() ) );
@@ -770,10 +769,10 @@ void VisualizationFrame::loadDisplayConfig( const QString& qpath )
     if ((valid_load_path = (fs::is_regular_file(actual_load_path) || fs::is_symlink(actual_load_path))))
       path = actual_load_path.string();
   }
-
   if( !valid_load_path )
   {
-    actual_load_path = (fs::path(package_path_) / "default.rviz");
+    actual_load_path = utilities::CfgFileHelper::getRvizCfgFile();
+    // actual_load_path = (fs::path(package_path_) / "default.rviz");
     if (!(valid_load_path = (fs::is_regular_file(actual_load_path) || fs::is_symlink(actual_load_path))))
     {
       ROS_ERROR( "Default display config '%s' not found.  RViz will be very empty at first.",

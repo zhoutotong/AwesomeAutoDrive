@@ -1,6 +1,9 @@
 #include "utilities.h"
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
+#include "cfgfilehelper.h"
 
 namespace utilities
 {
@@ -46,7 +49,63 @@ void APathHelper::init(const char *name)
         mDir = curdir + "/" + curapp.substr(0, cutpos);
         mApp = curapp.substr(cutpos + 1, curapp.size() - cutpos);
     }
+
+std::cout << "app dir: " << mDir << std::endl;
+
+    // 创建配置文件目录
+    std::vector<std::string> dirs = {
+        CfgFileHelper::getDataRecCfgFile(),
+        CfgFileHelper::getRvizCfgFile(),
+        CfgFileHelper::getTopicWatchTemplateFlie(),
+        CfgFileHelper::getScriptFileDir() + "/",
+        CfgFileHelper::getModelCfgDir() + "/",
+        CfgFileHelper::getModelCfgFile(),
+        CfgFileHelper::getVehicleCtlCfgFile(),
+    };
+    for(auto itor = dirs.begin(); itor != dirs.end(); itor++)
+    {
+        std::string fileDir = *itor;
+        int cut = fileDir.find_last_of('/');
+        std::string dir = fileDir.substr(0, cut);
+        utilities::APathHelper::createDir(dir);
+    }
     
+}
+
+int APathHelper::createDir(std::string n)
+{
+    std::istringstream ss;
+    if(n.at(0) == '~')
+    {
+        std::string home = std::string(getenv("HOME"));
+        ss.str(home + n.substr(1, n.size() - 1));
+    }
+    else
+    {
+        ss.str(n);
+    }
+    
+    std::string p = "";
+    std::string path = "";
+    while (std::getline(ss, p, '/'))
+    {
+        path += p + "/";
+        if (access(path.c_str(), NULL) != 0)
+        {
+            if (mkdir(path.c_str(), 0777) == -1)
+            {
+                std::cout << "Create Path <" << n << "> Failed!" << std::endl;
+                return -1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+std::string APathHelper::getHome()
+{
+    return std::string(getenv("HOME"));
 }
 
 }

@@ -1,0 +1,7 @@
+ctl_btns:
+    - text: PathPlayer
+      cmd: /home/tong/Projects/install-apk/scripts/parallel-pathplayer.bash
+      closable: false
+    - text: Core
+      cmd: /home/tong/Projects/install-apk/scripts/parallel-core.bash
+      closable: false

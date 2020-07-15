@@ -61,7 +61,8 @@ public:
     double getCtlSteering();
 
     // static functions
-    static std::map<std::string, std::string> getTopicList();
+    static std::map<std::string, std::string> getTopicTable();
+    static std::vector<std::string> getTopicList();
     static void generateTopicWatch(const std::string &node_name, const std::string &node, const std::string &output);
     
 

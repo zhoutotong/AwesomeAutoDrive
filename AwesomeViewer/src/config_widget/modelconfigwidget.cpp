@@ -26,7 +26,7 @@ QWidget *parent) : QObject(parent)
     mTopic->setEditable(true);
     mTopicType->setEditable(true);
     QStringList topicList;
-    std::map<std::string, std::string> ts = utilities::RosTools::getTopicList();
+    std::map<std::string, std::string> ts = utilities::RosTools::getTopicTable();
     QStringList topicStrings;
     QStringList topicTypeStrings;
     for(auto itor = ts.begin(); itor != ts.end(); itor++)
@@ -82,7 +82,7 @@ ModelConfigItem::~ModelConfigItem()
 
 void ModelConfigItem::topicChanged(const QString &t)
 {
-    std::map<std::string, std::string> ts = utilities::RosTools::getTopicList();
+    std::map<std::string, std::string> ts = utilities::RosTools::getTopicTable();
     
     auto itor = ts.find(t.toStdString());
     if(itor != ts.end())
@@ -273,18 +273,23 @@ ModelConfigWidget::ModelConfigWidget(QWidget *parent) : QWidget(parent)
     connect(mTableWidget, &EditTabWidget::tabAdded, this, &ModelConfigWidget::addModel);
     connect(mTableWidget, &EditTabWidget::tabCloseRequested, this, &ModelConfigWidget::removeModel);
     connect(mTableWidget, &EditTabWidget::tabTextChanged, this, &ModelConfigWidget::renameModel);
-
     // 查找模块管理配置文件是否存在，不存在就新建
-    QString cfgFile = QString::fromStdString(utilities::CfgFileHelper::getModelCfgFile());
-    if(!utilities::CfgFileHelper::checkFileExist(cfgFile.toStdString()))
+    std::string cfgFile = utilities::CfgFileHelper::getModelCfgFile();
+    if(!utilities::CfgFileHelper::checkFileExist(cfgFile))
     {
+        std::string fileDir = cfgFile;
+        int cut = fileDir.find_last_of('/');
+        std::string dir = fileDir.substr(0, cut);
+        utilities::APathHelper::createDir(dir);
+        std::cout << fileDir << std::endl;
+        fclose(fopen(fileDir.c_str(), "w+"));
         YAML::Node n = YAML::Load("{}");
-        std::ofstream fout(cfgFile.toStdString());
+        std::ofstream fout(fileDir);
         fout << n;
     }
 
     // 文件存在的情况，使用配置文件来初始化界面
-    YAML::Node n = YAML::LoadFile(cfgFile.toStdString());
+    YAML::Node n = YAML::LoadFile(cfgFile);
     if(!n.IsMap())
     {
         // 如果配置文件损坏则清空重建
@@ -292,10 +297,10 @@ ModelConfigWidget::ModelConfigWidget(QWidget *parent) : QWidget(parent)
         YAML::Node n = YAML::Load("{}");
         std::stringstream ss;
         ss << n;
-        FILE *fd = fopen(cfgFile.toStdString().c_str(), "w");
+        FILE *fd = fopen(cfgFile.c_str(), "w");
         fwrite(ss.str().c_str(), 1, ss.str().size(), fd);
         fclose(fd);
-        n = YAML::LoadFile(cfgFile.toStdString());
+        n = YAML::LoadFile(cfgFile);
     }
 
     if(n.size() == 0)
@@ -311,7 +316,7 @@ ModelConfigWidget::ModelConfigWidget(QWidget *parent) : QWidget(parent)
         mTableWidget->addTab(item, QString::fromStdString(itor->second.as<std::string>()));
     }
 
-    mModelCfgNode = YAML::LoadFile(cfgFile.toStdString());
+    mModelCfgNode = YAML::LoadFile(cfgFile);
 
 }
 

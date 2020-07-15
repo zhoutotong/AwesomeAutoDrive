@@ -8,30 +8,28 @@
 namespace execctl {
 
 NodeWatch::NodeWatch(const std::string &name) : Execable(name)
+  , cmd(new CmdExecable())
 {
 }
 NodeWatch::~NodeWatch()
 {
     stop();
+    if(cmd)
+    {
+        delete cmd;
+        cmd = nullptr;
+    }
 }
 
 void NodeWatch::start()
 {
-    // 检查线程是否在执行
-    if(execThread)
-    {
-        execThread->detach();
-        delete execThread;
-        execThread = nullptr;
-    }
     qDebug() << "start thread now: " << QString::fromStdString(execName);
-    execThread = new std::thread([this]{
-        std::string pyfile = utilities::CfgFileHelper::getModelCfgDir() + execName + ".py";
-        qDebug() << ">>> running: " << QString::fromStdString(pyfile);
-        if(QFile::exists(QString::fromStdString(pyfile)))
-            pid = system(std::string("python " + pyfile).c_str());
-        std::cout << "-->" << execName << " NodeWatch thread is Exited!!!" << std::endl;
-    });
+    std::string pyfile = utilities::CfgFileHelper::getScriptFileDir() + execName + ".py";
+    std::string c = ("python2 " + pyfile);
+    std::cout << ">>> running: " << c << std::endl;
+    if (QFile::exists(QString::fromStdString(pyfile)))
+        cmd->start(c.c_str());
+    else std::cout << "can not find script: " << pyfile << std::endl;
 }
 void NodeWatch::reload()
 {
@@ -40,20 +38,7 @@ void NodeWatch::reload()
 }
 void NodeWatch::stop()
 {
-    // 杀死启动的监测进程
-    QString cmd = "ps -aux | grep -E \'<scrpit>\' | awk '{print $2}' | xargs kill -9";
-    std::string pyfile = utilities::CfgFileHelper::getModelCfgDir() + execName + ".py";
-    cmd.replace("<scrpit>", QString::fromStdString(pyfile));
-
-    system(cmd.toStdString().c_str());
-
-    // 检查线程是否在执行
-    if(execThread)
-    {// 这个线程用来执行监控程序
-        execThread->detach();
-        delete execThread;
-        execThread = nullptr;
-    }
+    cmd->stop();
 }
 
 ExecCtl::ExecCtl() : mRootPath(utilities::CfgFileHelper::getModelCfgDir()){
@@ -62,16 +47,22 @@ ExecCtl::ExecCtl() : mRootPath(utilities::CfgFileHelper::getModelCfgDir()){
     const QString NodeListTab = "NodeList";
     const std::string cfgFile = utilities::CfgFileHelper::getModelCfgFile();
 
-    YAML::Node node = YAML::LoadFile(cfgFile);
-    std::cout << "---------------------------------------------------------" << std::endl;
-
-    foreach(auto itor, node)
+    if(utilities::CfgFileHelper::checkFileExist(cfgFile))
     {
-        std::cout << "register: " << itor.first.as<std::string>() << std::endl;
-        REGISTER_EXEC(itor.first.as<std::string>());
+        YAML::Node node = YAML::LoadFile(cfgFile);
+        std::cout << "---------------------------------------------------------" << std::endl;
+        if(node.IsDefined())
+        {
+            foreach(auto itor, node)
+            {
+                std::cout << "register: " << itor.first.as<std::string>() << std::endl;
+                REGISTER_EXEC(itor.first.as<std::string>());
+            }            
+        }
+        std::cout << "---------------------------------------------------------" << std::endl;        
     }
 
-    std::cout << "---------------------------------------------------------" << std::endl;
+
 }
 
 ExecCtl::~ExecCtl(){
@@ -116,5 +107,79 @@ void ExecCtl::stop(std::string name)
     exec->second->stop();
 }
 
+CmdExecable::CmdExecable(bool closable) : mPid(-1), mCmd(""), mWaitThread(nullptr), mClosable(closable)
+{
 
+}
+CmdExecable::~CmdExecable()
+{
+    
+}
+void CmdExecable::start(const std::string &cmd)
+{
+    if(mPid > 0 && mClosable) return;
+    if(cmd.empty()) return;
+    mCmd = cmd;
+    mPid = fork();
+    if(mPid == 0)
+    {
+        std::string c = mCmd.substr(0, mCmd.find_first_of(' '));
+        std::string params = mCmd.substr(mCmd.find_first_of(' ') + 1, mCmd.size());
+
+        std::vector<std::string> paramList;
+        
+        std::stringstream ss(params);
+        std::string item;
+        while(std::getline(ss, item, ' '))
+        {
+            if(!item.empty()) paramList.push_back(item);
+        }
+
+        const char *argv[512];
+        argv[0] = c.c_str();
+
+        for(int i = 0; i < paramList.size(); i++)
+        {
+            argv[i + 1] = paramList.at(i).c_str();
+        }
+        argv[paramList.size() + 1] = NULL;
+
+
+        execvpe(c.c_str(), (char*const*)argv, __environ);
+
+        for(int i = 0; i < paramList.size() + 2; i++)
+        {
+            delete argv[i];
+        }
+    }
+    else
+    {
+        // 主线程
+        mWaitThread = new std::thread([this] {
+            int status = 0;
+            waitpid(mPid, &status, 0);
+        });
+    }
+    
+}
+void CmdExecable::reload()
+{
+
+}
+void CmdExecable::stop()
+{
+    if(mPid <= 0) return;
+    kill(mPid, SIGINT);
+    kill(mPid, SIGKILL);
+    mPid = -1;
+    if(mWaitThread)
+    {
+        mWaitThread->join();
+        delete mWaitThread;
+        mWaitThread = nullptr;
+    }
+}
+
+// /usr/bin/python /usr/bin/x-terminal-emulator
+// /usr/bin/gnome-shell
 }

@@ -25,6 +25,7 @@ cfgfilehelper.cpp
 rostools.cpp
 execctl.cpp
 utilities.cpp
+datavisualization.cpp
 )
 
 include_directories(                          #相关头文件的目录
@@ -36,6 +37,7 @@ ${CMAKE_INCLUDE_PATH}
 
 link_directories(                             #相关库文件的目录
 /usr/local/lib
+${CMAKE_LIBRARY_PATH}
 )
 
 

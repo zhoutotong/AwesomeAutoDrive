@@ -7,6 +7,11 @@
 
 #include <QSettings>
 
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+
 #include "ros/ros.h"
 #include "ros/package.h"
 
@@ -29,6 +34,23 @@ protected:
 
 };
 
+class CmdExecable
+{
+public:
+    explicit CmdExecable(bool closable = true);
+    ~CmdExecable();
+
+    void start(const std::string &cmd);
+    void reload();
+    void stop();
+
+protected:
+    pid_t mPid;
+    std::string mCmd;
+    std::thread *mWaitThread;
+    bool mClosable;
+};
+
 class NodeWatch : public Execable {
 
 public:
@@ -38,6 +60,9 @@ public:
     void start() override;
     void reload() override;
     void stop() override;
+
+private:
+    CmdExecable *cmd;
 
 };
 

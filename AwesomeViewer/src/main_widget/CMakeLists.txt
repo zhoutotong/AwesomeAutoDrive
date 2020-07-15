@@ -24,6 +24,8 @@ find_package(jsk_rviz_plugins REQUIRED)
 set(SOURCE_FILES
 mainwidget.cpp
 datarec.cpp
+pathplayer.cpp
+vehiclecontrol.cpp
 )
 
 include_directories(                          #相关头文件的目录

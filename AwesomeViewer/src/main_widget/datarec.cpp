@@ -12,7 +12,9 @@ DataRecItem::DataRecItem(const QString &n, QObject *parent) : QObject(parent)
   , mPauseBtn(new QPushButton("暂停"))
   , mStopBtn(new QPushButton("停止"))
   , mStatusLabel(new QLabel("停止"))
-  , mWidgetList({mNameLabel, mStartBtn, mPauseBtn, mStopBtn, mStatusLabel})
+  , mCmdExec(new execctl::CmdExecable())
+  , mCmd("")
+  , mWidgetList({mNameLabel, mStartBtn, mStopBtn, mStatusLabel})
 {
     // 设置label风格
     mNameLabel->setEnabled(false);
@@ -28,16 +30,22 @@ DataRecItem::DataRecItem(const QString &n, QObject *parent) : QObject(parent)
     connect(mStartBtn, &QPushButton::clicked, [this]{
         mCurrentStatus = Work;
         updateBtnStatus(Work);
+        loadCmd();
+        if(mCmdExec) mCmdExec->start(mCmd.toStdString());
+        emit start();
     });
     // 暂停按钮
     connect(mPauseBtn, &QPushButton::clicked, [this]{
         mCurrentStatus = Pause;
         updateBtnStatus(Pause);
+        emit pause();
     });
     // 停止按钮
     connect(mStopBtn, &QPushButton::clicked, [this]{
         mCurrentStatus = Stop;
         updateBtnStatus(Stop);
+        if(mCmdExec) mCmdExec->stop();
+        emit stop();
     });
 }
 
@@ -46,6 +54,46 @@ DataRecItem::~DataRecItem()
     foreach(auto itor, mWidgetList)
     {
         delete itor;
+    }
+}
+
+void DataRecItem::loadCmd()
+{
+    utilities::CfgFileHelper::checkAndCreateFile(utilities::CfgFileHelper::getDataRecCfgFile());
+    // 从配置文件里载入
+    YAML::Node root = YAML::LoadFile(utilities::CfgFileHelper::getDataRecCfgFile());
+    // 检查root合法性
+    if(root.IsMap())
+    {
+        std::string topicList;
+        for(auto itor = root[mNameLabel->text().toStdString()]["topics"].begin(); itor != root[mNameLabel->text().toStdString()]["topics"].end(); itor++)
+        {
+            topicList += itor->as<std::string>() + " ";
+        }
+        std::string params = root[mNameLabel->text().toStdString()]["params"].as<std::string>();
+        mCmd = "/opt/ros/melodic/lib/rosbag/record ";
+        if (params.find_first_of("--buffsize") == std::string::npos && \
+              params.find_first_of("-b") == std::string::npos)
+        {
+            mCmd += "--buffsize 256 ";
+        }
+        if (params.find_first_of("--chunksize") == std::string::npos)
+        {
+            mCmd += "--chunksize 768 ";
+        }
+
+        if (params.find_first_of("--output-prefix") == std::string::npos && \
+              params.find_first_of("-o") == std::string::npos)
+        {
+            QString bagFilePath = QString::fromStdString(utilities::CfgFileHelper::getDataRecPath()) + "/" \
+                + mNameLabel->text() + "/";
+            utilities::APathHelper::createDir(bagFilePath.toStdString());
+            mCmd += "--output-prefix " + bagFilePath + mNameLabel->text();
+        }
+
+        mCmd += QString::fromStdString(params);
+
+        mCmd += " " + QString::fromStdString(topicList);
     }
 }
 
@@ -83,14 +131,18 @@ DataRecWidget::DataRecWidget(QWidget *parent) : QWidget(parent)
     layout->addWidget(mTable);
     mTable->horizontalHeader()->hide();
     mTable->verticalHeader()->hide();
-    mTable->setColumnCount(5);
+    mTable->setColumnCount(4);
     DataRecItem *item = new DataRecItem("test");
 
     // 检查配置文件是否存在
     if(!utilities::CfgFileHelper::checkFileExist(utilities::CfgFileHelper::getDataRecCfgFile()))
     {
         // 如果不存在则新建，并初始化内容
-        fclose(fopen(utilities::CfgFileHelper::getDataRecCfgFile().c_str(), "w+"));
+        std::string fileDir = utilities::CfgFileHelper::getDataRecCfgFile();
+        int cut = fileDir.find_last_of('/');
+        std::string dir = fileDir.substr(0, cut);
+        utilities::APathHelper::createDir(dir);
+        fclose(fopen(fileDir.c_str(), "w+"));
         YAML::Node n = YAML::LoadFile(utilities::CfgFileHelper::getDataRecCfgFile());
         n = YAML::Load("{}");
         std::ofstream fout(utilities::CfgFileHelper::getDataRecCfgFile());
@@ -139,6 +191,7 @@ void DataRecWidget::loadItemFromCfgFile(const QString &cfg)
     // 释放资源
     for(int i = 0; i < mItemList.size(); i++)
     {
+        disconnect(mItemList.at(i));
         delete mItemList.at(i);
         mTable->removeRow(0);
     }
@@ -157,7 +210,23 @@ void DataRecWidget::loadItemFromCfgFile(const QString &cfg)
         QString name = QString::fromStdString(itor->first.as<std::string>());
         DataRecItem *item = new DataRecItem(name);
         addItem(item);
+        connect(item, &DataRecItem::start, this, &DataRecWidget::start);
+        connect(item, &DataRecItem::stop, this, &DataRecWidget::stop);
+        connect(item, &DataRecItem::pause, this, &DataRecWidget::pause);
+
     }
 }
 
+void DataRecWidget::start()
+{
+
+}
+void DataRecWidget::stop()
+{
+
+}
+void DataRecWidget::pause()
+{
+
+}
 }

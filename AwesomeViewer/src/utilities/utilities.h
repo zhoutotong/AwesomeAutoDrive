@@ -25,6 +25,8 @@ public:
     static void init(const char *name);
     static std::string getAppDir(){ return mDir; }
     static std::string getApp() { return mApp; }
+    static std::string getHome();
+    static int createDir(std::string n);
 private:
     static std::string mDir;
     static std::string mApp;

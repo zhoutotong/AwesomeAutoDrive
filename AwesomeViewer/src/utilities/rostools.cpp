@@ -86,7 +86,7 @@ void RosTools::drivingCommandCb(const nox_msgs::DrivingCommand::ConstPtr &msg)
     gCtlSpeed = msg->target_speed;
 }
 
-std::map<std::string, std::string> RosTools::getTopicList()
+std::map<std::string, std::string> RosTools::getTopicTable()
 {
     ros::master::V_TopicInfo topics;
     std::map<std::string, std::string> ts;
@@ -94,6 +94,18 @@ std::map<std::string, std::string> RosTools::getTopicList()
     for(auto itor = topics.begin(); itor != topics.end(); itor++)
     {
         ts.insert(std::pair<std::string, std::string>(itor->name, itor->datatype));
+    }
+    return ts;
+}
+
+std::vector<std::string> RosTools::getTopicList()
+{
+    ros::master::V_TopicInfo topics;
+    std::vector<std::string> ts;
+    ros::master::getTopics(topics);
+    for(auto itor = topics.begin(); itor != topics.end(); itor++)
+    {
+        ts.push_back(itor->name);
     }
     return ts;
 }
@@ -278,7 +290,7 @@ void RosTools::generateTopicWatch(const std::string &node_name, const std::strin
 
     // 生成监测脚本
     QString script = replaceTag(t, items);
-
+std::cout << "genarate py file in: " << output << std::endl;
     FILE *fd = fopen(output.c_str(), "w");
     if(!fd) return;
     fwrite(script.toStdString().c_str(), 1, script.size(), fd);

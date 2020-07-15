@@ -102,6 +102,7 @@ void BriefWidget::updateData(const NodeDataMapDef &dataMap)
             QTableWidgetItem *tbItem = nullptr;
 
             // 监控名称参数
+            if(!mNodeList[item.msg_name]["params"][item.param_name]["name"].IsDefined()) continue;
             QString watchParamName = QString::fromStdString(mNodeList[item.msg_name]["params"][item.param_name]["name"].as<std::string>());
             tbItem = new QTableWidgetItem(watchParamName);
             mDataWidget->setItem(i, m++, tbItem);
@@ -273,7 +274,7 @@ void TopicWatch::updateModelCfg()
 
     // 更新脚本
     std::string cfgFile = utilities::CfgFileHelper::getModelCfgDir() + objectName().toStdString() + ".yaml";
-    std::string script = utilities::CfgFileHelper::getModelCfgDir() + objectName().toStdString() + ".py";
+    std::string script = utilities::CfgFileHelper::getScriptFileDir() + objectName().toStdString() + ".py";
     utilities::RosTools::generateTopicWatch(objectName().toStdString(), cfgFile, script);
 
     // 启动监测线程
